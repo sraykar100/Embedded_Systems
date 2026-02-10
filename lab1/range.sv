@@ -31,8 +31,28 @@ module range
    assign n = start;
    assign din = 16'h0;
    assign num = 0;
-   assign we = running;   
-	/* Replace this comment and the code above with your solution. */
+   assign we = running;
+
+
+	
+	always_ff @(posedge clk) begin
+		cgo <= 0;
+		if (go) begin 
+			running <= 1;
+			n <= start;
+			num <= 0;
+			din <= 1;
+			cgo <= 1;
+
+		if (we) begin
+		   we <= 0;
+		   n <= n + 1;
+		   num <= num + 1;
+		end
+	else if (cdone) we <= 1;
+	else if (~cdone & ~cgo) din <= din + 1;
+
+/* Replace this comment and the code above with your solution. */
 
    logic 			 we;                    // Write din to addr
    logic [15:0] 		 din;                   // Data to write
