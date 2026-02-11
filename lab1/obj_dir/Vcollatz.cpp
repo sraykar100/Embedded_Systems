@@ -91,25 +91,25 @@ VL_INLINE_OPT void Vcollatz::_sequent__TOP__1(Vcollatz__Syms* __restrict vlSymsp
     CData/*0:0*/ __Vdly__done;
     IData/*31:0*/ __Vdly__dout;
     // Body
-    __Vdly__done = vlTOPp->done;
     __Vdly__dout = vlTOPp->dout;
+    __Vdly__done = vlTOPp->done;
+    if ((2U == vlTOPp->dout)) {
+        __Vdly__done = 1U;
+    }
     if (vlTOPp->go) {
         __Vdly__dout = vlTOPp->n;
         __Vdly__done = 0U;
     } else {
         if ((1U & (~ (IData)(vlTOPp->done)))) {
-            if ((1U == vlTOPp->dout)) {
-                __Vdly__done = 1U;
-            } else {
-                __Vdly__dout = ((1U & vlTOPp->dout)
-                                 ? ((IData)(1U) + ((IData)(3U) 
-                                                   * vlTOPp->dout))
-                                 : (vlTOPp->dout >> 1U));
-            }
+            __Vdly__dout = ((1U & vlTOPp->dout) ? ((IData)(1U) 
+                                                   + 
+                                                   ((IData)(3U) 
+                                                    * vlTOPp->dout))
+                             : (vlTOPp->dout >> 1U));
         }
     }
-    vlTOPp->dout = __Vdly__dout;
     vlTOPp->done = __Vdly__done;
+    vlTOPp->dout = __Vdly__dout;
 }
 
 void Vcollatz::_eval(Vcollatz__Syms* __restrict vlSymsp) {

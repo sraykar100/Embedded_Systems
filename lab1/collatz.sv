@@ -5,12 +5,12 @@ module collatz( input logic         clk,   // Clock
 		output logic 	    done); // True when dout reaches 1
 
    always_ff @(posedge clk) begin
+	   if (dout == 32'd2) done <= 1'b1;
 	   if (go) begin 
 		   dout <= n;
 		   done <= 1'b0;
 	   end
 	   else if (done);
-	   else if (dout == 32'd1)	done <= 1'b1;	
 	   else if(dout[0])	dout <= (dout * 3) + 1;
 	   else			dout <= dout >> 1;
    end

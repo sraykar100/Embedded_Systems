@@ -32,8 +32,8 @@ VL_MODULE(Vrange) {
     
     // LOCAL SIGNALS
     // Internals; generally not touched by application code
-    CData/*0:0*/ range__DOT__cdone;
     CData/*0:0*/ range__DOT__cgo;
+    CData/*0:0*/ range__DOT__cdone;
     CData/*3:0*/ range__DOT__num;
     CData/*0:0*/ range__DOT__running;
     CData/*0:0*/ range__DOT__we;
@@ -45,17 +45,7 @@ VL_MODULE(Vrange) {
     
     // LOCAL VARIABLES
     // Internals; generally not touched by application code
-    CData/*0:0*/ __Vdly__range__DOT__we;
-    CData/*0:0*/ __Vdly__range__DOT__running;
-    CData/*3:0*/ __Vdly__range__DOT__num;
-    CData/*0:0*/ __Vdly__range__DOT__cgo;
-    CData/*0:0*/ __Vdly__range__DOT__cdone;
-    CData/*0:0*/ __VinpClk__TOP__range__DOT__cdone;
-    CData/*0:0*/ __Vclklast__TOP____VinpClk__TOP__range__DOT__cdone;
     CData/*0:0*/ __Vclklast__TOP__clk;
-    CData/*0:0*/ __Vchglast__TOP__range__DOT__cdone;
-    SData/*15:0*/ __Vdly__range__DOT__din;
-    IData/*31:0*/ __Vdly__range__DOT__n;
     IData/*31:0*/ __Vm_traceActivity;
     
     // INTERNAL VARIABLES
@@ -98,20 +88,14 @@ VL_MODULE(Vrange) {
   public:
     static void _eval_initial(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
     static void _eval_settle(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
-    static void _initial__TOP__4(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
-    static void _sequent__TOP__2(Vrange__Syms* __restrict vlSymsp);
-    static void _sequent__TOP__3(Vrange__Syms* __restrict vlSymsp);
-    static void _sequent__TOP__6(Vrange__Syms* __restrict vlSymsp);
-    static void _sequent__TOP__7(Vrange__Syms* __restrict vlSymsp);
-    static void _sequent__TOP__8(Vrange__Syms* __restrict vlSymsp);
-    static void _settle__TOP__5(Vrange__Syms* __restrict vlSymsp);
+    static void _initial__TOP__2(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
+    static void _sequent__TOP__1(Vrange__Syms* __restrict vlSymsp);
+    static void _settle__TOP__3(Vrange__Syms* __restrict vlSymsp);
     static void traceChgThis(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceChgThis__2(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceChgThis__3(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceChgThis__4(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceChgThis__5(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
-    static void traceChgThis__6(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
-    static void traceChgThis__7(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceFullThis(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code) VL_ATTR_COLD;
     static void traceFullThis__1(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code) VL_ATTR_COLD;
     static void traceInitThis(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code) VL_ATTR_COLD;
