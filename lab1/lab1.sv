@@ -35,17 +35,8 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 
       logic [11:0] start_display;
 
-      assign start_display = SW[11:0];
-      
-   always_comb begin
-      n_ones    = start_display % 10;
-      n_tens    = (start_display / 10) % 10;
-      n_hundreds = (start_display / 100) % 10;
-      assign c_ones    = count % 10;
-      assign c_tens    = (count / 10) % 10;
-      assign c_hundreds = (count / 100) % 10;
-   end
-
+      assign start_display = SW;
+   
    // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
    hex7seg seg5 (.a(n_hundreds), .y(HEX5));
    hex7seg seg4 (.a(n_tens),     .y(HEX4));
@@ -56,19 +47,23 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg0 (.a(c_ones),     .y(HEX0));
 
    assign LEDR = SW;
-
-   assign go = KEY[3];
-
+   assign go = KEY[1];
+	
    always_ff @(posedge clk) begin
-      if (KEY[3]) begin
+	// always update display values 
+	// Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
+      n_ones    <= start_display % 10;
+      n_tens    <= (start_display / 10) % 10;
+      n_hundreds <= (start_display / 100) % 10;
+      c_ones    <= count % 10;
+      c_tens    <= (count / 10) % 10;
+      c_hundreds <= (count / 100) % 10;
+      
+      if (go) begin
          start <= SW;
-         go <= 1;
       end
-      else begin
-            go <= 0;
-            if (done) begin
-                  start <= 0;
-            end
+      if (done) begin
+            start <= 0;
             // start <= 0;
             // counter <= counter + 1;
             // if (counter == 22'd1000000) begin
