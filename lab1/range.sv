@@ -27,7 +27,11 @@ module range
    /* Replace this comment and the code below with your solution,
       which should generate running, done, cgo, n, num, we, and din */
 	
-	always_ff @(posedge clk) begin
+	always_ff @(posedge cdone) begin
+		we <= cdone;
+	end	
+
+     	always_ff @(posedge clk) begin
 		if (~running) done <= 0;
 		if (go) begin 
 			running <= 1;
@@ -50,7 +54,6 @@ module range
 			   done <= 1;
 		   end
 		end
-		else if (cdone) we <= 1;
 		else if (running && ~cgo) din <= din + 1;
 	end
 /* Replace this comment and the code above with your solution. */
