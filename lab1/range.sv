@@ -38,11 +38,11 @@ module range
 		end
 		if (cgo) begin
 			cgo <= 0;
-			din <= 1;
 		end
 		if (we) begin
 		   we <= 0;
-		   n <= n + 1;
+		   din <= 1;
+		   // n <= n + 1;
 		   num <= num + 1;
 		   if (num == 4'hf) begin
 			   running <= 0;
@@ -52,6 +52,7 @@ module range
 		else if (cdone) begin
 			we <= 1;
 			cgo <= 1;
+			n <= n + 1;
 		end
 		else if (running && ~cgo) din <= din + 1;
 	end

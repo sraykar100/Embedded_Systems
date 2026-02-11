@@ -145,19 +145,19 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__1(Vrange__Syms* __restrict vlSymsp) {
     }
     if (vlTOPp->range__DOT__cgo) {
         __Vdly__range__DOT__cgo = 0U;
-        __Vdly__range__DOT__din = 1U;
     }
     if (vlTOPp->range__DOT__we) {
-        __Vdly__range__DOT__n = ((IData)(1U) + vlTOPp->range__DOT__n);
         __Vdly__range__DOT__num = (0xfU & ((IData)(1U) 
                                            + (IData)(vlTOPp->range__DOT__num)));
         vlTOPp->range__DOT__we = 0U;
+        __Vdly__range__DOT__din = 1U;
         if ((0xfU == (IData)(vlTOPp->range__DOT__num))) {
             __Vdly__range__DOT__running = 0U;
             vlTOPp->done = 1U;
         }
     } else {
         if (vlTOPp->range__DOT__cdone) {
+            __Vdly__range__DOT__n = ((IData)(1U) + vlTOPp->range__DOT__n);
             vlTOPp->range__DOT__we = 1U;
             __Vdly__range__DOT__cgo = 1U;
         } else {
@@ -175,8 +175,8 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__1(Vrange__Syms* __restrict vlSymsp) {
             = __Vdlyvval__range__DOT__mem__v0;
     }
     vlTOPp->range__DOT__cgo = __Vdly__range__DOT__cgo;
-    vlTOPp->range__DOT__n = __Vdly__range__DOT__n;
     vlTOPp->range__DOT__cdone = __Vdly__range__DOT__cdone;
+    vlTOPp->range__DOT__n = __Vdly__range__DOT__n;
     vlTOPp->range__DOT__din = __Vdly__range__DOT__din;
     vlTOPp->range__DOT__running = __Vdly__range__DOT__running;
     vlTOPp->range__DOT__num = __Vdly__range__DOT__num;
