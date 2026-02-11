@@ -17,12 +17,15 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     output logic [9:0] LEDR // LEDs above the switches; LED[0] on right
 	     );
 
-   logic 			clk, go, done;
-   logic [31:0] 		start;
+   logic 			clk, done;
+   logic 			go;                    // one-cycle pulse to start range
+   logic 			key3_prev = 1'b1;      // for KEY[3] edge detect
+   logic 			go_next;               // go pulse one cycle after latching start
+   logic [31:0] 		start;                 // latched n: display + range read addr (keep after run)
    logic [15:0] 		count;
    logic [21:0] 		counter;
 
-   // Decimal digits (0-9) for display: extract from binary using / and %
+   // CUSTOM: Decimal digits (0-9) for display: extract from binary using / and %
    logic [3:0] 		n_ones, n_tens, n_hundreds;   // n = start[11:0]
    logic [3:0] 		c_ones, c_tens, c_hundreds;   // iteration count
 
@@ -50,29 +53,26 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg1 (.a(c_tens),     .y(HEX1));
    hex7seg seg0 (.a(c_ones),     .y(HEX0));
 
-   assign LEDR = SW;
+   assign LEDR = SW; // mirror switches
+   assign go = go_next;
 
-   assign go = KEY[3];
-
+   // KEY[3] rising edge: latch start from SW and pulse go next cycle. Do NOT zero start when done.
    always_ff @(posedge clk) begin
-      if (go && ~done) begin
-         start <= SW;
-      end
-      else begin
+      key3_prev <= KEY[3];
+      if (KEY[3] && ~key3_prev) begin
+         start   <= 32'(SW);
+         go_next <= 1;
+      end else begin
+         go_next <= 0;
+         counter <= counter + 1;
+         if (counter == 22'd1000000)
+            counter <= 0;
+         if (KEY[0] && start < 255)
+            start <= start + 1;
+         else if (KEY[1] && start > 0)
+            start <= start - 1;
+         else if (KEY[2])
             start <= 0;
-            counter <= counter + 1;
-            if (counter == 22'd1000000) begin
-                  counter <= 0;
-            end
-            if (KEY[0] && start < 255) begin
-                  start <= start + 1;
-            end
-            else if (KEY[1] && start > 0) begin
-                  start <= start - 1;
-            end
-            else if (KEY[2]) begin
-                  start <= 0;
-            end
       end
    end
   
