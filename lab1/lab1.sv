@@ -34,12 +34,8 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
 
       logic [11:0] start_display;
-      logic [31:0] start_index;
 
-      start_index <= 0;
-
-      assign start_display = SW[11:0] + start_index;
-      start <= SW;
+      assign start_display = SW[11:0];
       
    always_comb begin
       n_ones    = start_display % 10;
@@ -66,13 +62,12 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    always_ff @(posedge clk) begin
       if (KEY[3]) begin
          start <= SW;
-         start_index <= 0;
          go <= 1;
       end
       else begin
             go <= 0;
             if (done) begin
-                  start <= start_index;
+                  start <= 0;
             end
             // start <= 0;
             // counter <= counter + 1;
