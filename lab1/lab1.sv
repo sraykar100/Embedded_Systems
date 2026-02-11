@@ -17,27 +17,40 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     output logic [9:0] LEDR // LEDs above the switches; LED[0] on right
 	     );
 
-   logic 			clk, go, done;   
+   logic 			clk, go, done;
    logic [31:0] 		start;
    logic [15:0] 		count;
    logic [21:0] 		counter;
 
-//    logic [11:0] 		n;
-   
+   // Decimal digits (0-9) for display: extract from binary using / and %
+   logic [3:0] 		n_ones, n_tens, n_hundreds;   // n = start[11:0]
+   logic [3:0] 		c_ones, c_tens, c_hundreds;   // iteration count
+
    assign clk = CLOCK_50;
- 
+
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
          r ( .* ); // Connect everything with matching names
 
-   // Left 3 digits (HEX5, HEX4, HEX3): n (lower 12 bits of start)
-   // Right 3 digits (HEX2, HEX1, HEX0): iteration count for that n
-   hex7seg seg0 (.a(count[3:0]),     .y(HEX0));   
-   hex7seg seg1 (.a(count[7:4]),     .y(HEX1));
-   hex7seg seg2 (.a(count[11:8]),    .y(HEX2));   
-   hex7seg seg3 (.a(start[3:0]),     .y(HEX3));   
-   hex7seg seg4 (.a(start[7:4]),     .y(HEX4));
-   hex7seg seg5 (.a(start[11:8]),    .y(HEX5));  
-   assign LEDR = 0; // LED off
+   // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
+   always_comb begin
+      n_ones    = start[11:0] % 10;
+      n_tens    = (start[11:0] / 10) % 10;
+      n_hundreds = (start[11:0] / 100) % 10;
+      c_ones    = count % 10;
+      c_tens    = (count / 10) % 10;
+      c_hundreds = (count / 100) % 10;
+   end
+
+   // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
+   hex7seg seg5 (.a(n_hundreds), .y(HEX5));
+   hex7seg seg4 (.a(n_tens),     .y(HEX4));
+   hex7seg seg3 (.a(n_ones),     .y(HEX3));
+   // Right 3 digits (HEX2, HEX1, HEX0): iteration count in decimal
+   hex7seg seg2 (.a(c_hundreds), .y(HEX2));
+   hex7seg seg1 (.a(c_tens),     .y(HEX1));
+   hex7seg seg0 (.a(c_ones),     .y(HEX0));
+
+   assign LEDR = SW;
 
    assign go = KEY[3];
 
