@@ -33,6 +33,12 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg0 (.a(count[3:0]),   .y(HEX0));  
    hex7seg seg1 (.a(count[7:4]),   .y(HEX1));
    hex7seg seg2 (.a(count[11:8]),  .y(HEX2));
+   
+   // Unused, should be blank
+   hex7seg seg3 (.a(4'h0),   .y(HEX3));
+   hex7seg seg4 (.a(4'h0),   .y(HEX4));
+   hex7seg seg5 (.a(4'h0),  .y(HEX5));
+   
 
    range #(.RAM_WORDS(256), .RAM_ADDR_BITS(8)) r1(
       .clk(clk), 
@@ -65,15 +71,5 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
             end
       end
    end
-
-
-
-
-   assign LEDR = SW;
-   assign go = KEY[0];
-   assign start = {SW[1:0], SW, SW, SW};
-   assign n = {SW[1:0], SW};
-   
-   
   
 endmodule
