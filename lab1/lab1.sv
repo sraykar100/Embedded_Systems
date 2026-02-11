@@ -39,15 +39,6 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg4 (.a(4'h0),   .y(HEX4));
    hex7seg seg5 (.a(4'h0),  .y(HEX5));
    assign LEDR = 0; // LED off
-   
-
-   range #(.RAM_WORDS(256), .RAM_ADDR_BITS(8)) r1(
-      .clk(clk), 
-      .go(go), 
-      .start(start), 
-      .done(done), 
-      .count(count)
-   );
 
    assign go = KEY[3];
 
