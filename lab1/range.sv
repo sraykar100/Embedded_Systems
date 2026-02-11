@@ -28,7 +28,7 @@ module range
       which should generate running, done, cgo, n, num, we, and din */
 	
 	always_ff @(posedge clk) begin
-		if (num == 5'h10) done <= 1;
+		if (~running) done <= 0;
 		if (go) begin 
 			running <= 1;
 			n <= start;
@@ -42,9 +42,13 @@ module range
 		   n <= n + 1;
 		   cgo <= 1;
 		   num <= num + 1;
+		   if (num == 4'hf) begin
+			   running <= 0;
+			   done <= 1;
+		   end
 		end
 		else if (cdone) we <= 1;
-		else if (~cgo) din <= din + 1;
+		else if (running && ~cgo) din <= din + 1;
 	end
 /* Replace this comment and the code above with your solution. */
 

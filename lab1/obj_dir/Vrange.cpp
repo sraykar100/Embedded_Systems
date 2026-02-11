@@ -84,17 +84,11 @@ void Vrange::_eval_initial_loop(Vrange__Syms* __restrict vlSymsp) {
     } while (VL_UNLIKELY(__Vchange));
 }
 
-void Vrange::_initial__TOP__1(Vrange__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vrange::_initial__TOP__1\n"); );
-    Vrange* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
-    // Body
-    vlTOPp->range__DOT__running = 0U;
-}
-
-VL_INLINE_OPT void Vrange::_sequent__TOP__2(Vrange__Syms* __restrict vlSymsp) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vrange::_sequent__TOP__2\n"); );
+VL_INLINE_OPT void Vrange::_sequent__TOP__1(Vrange__Syms* __restrict vlSymsp) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vrange::_sequent__TOP__1\n"); );
     Vrange* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Variables
+    CData/*0:0*/ __Vdly__range__DOT__running;
     CData/*3:0*/ __Vdly__range__DOT__num;
     CData/*0:0*/ __Vdly__range__DOT__cgo;
     CData/*3:0*/ __Vdlyvdim0__range__DOT__mem__v0;
@@ -111,10 +105,8 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__2(Vrange__Syms* __restrict vlSymsp) {
     __Vdly__range__DOT__cgo = vlTOPp->range__DOT__cgo;
     __Vdly__range__DOT__din = vlTOPp->range__DOT__din;
     __Vdly__range__DOT__n = vlTOPp->range__DOT__n;
+    __Vdly__range__DOT__running = vlTOPp->range__DOT__running;
     __Vdly__range__DOT__num = vlTOPp->range__DOT__num;
-    if (vlTOPp->go) {
-        vlTOPp->range__DOT__running = 1U;
-    }
     vlTOPp->count = vlTOPp->range__DOT__mem[vlTOPp->range__DOT__addr];
     if (vlTOPp->range__DOT__cgo) {
         __Vdly__range__DOT__c1__DOT__dout = vlTOPp->range__DOT__n;
@@ -138,7 +130,11 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__2(Vrange__Syms* __restrict vlSymsp) {
         __Vdlyvset__range__DOT__mem__v0 = 1U;
         __Vdlyvdim0__range__DOT__mem__v0 = vlTOPp->range__DOT__addr;
     }
+    if ((1U & (~ (IData)(vlTOPp->range__DOT__running)))) {
+        vlTOPp->done = 0U;
+    }
     if (vlTOPp->go) {
+        __Vdly__range__DOT__running = 1U;
         __Vdly__range__DOT__n = vlTOPp->start;
         __Vdly__range__DOT__num = 0U;
         __Vdly__range__DOT__din = 1U;
@@ -153,11 +149,16 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__2(Vrange__Syms* __restrict vlSymsp) {
                                            + (IData)(vlTOPp->range__DOT__num)));
         vlTOPp->range__DOT__we = 0U;
         __Vdly__range__DOT__cgo = 1U;
+        if ((0xfU == (IData)(vlTOPp->range__DOT__num))) {
+            __Vdly__range__DOT__running = 0U;
+            vlTOPp->done = 1U;
+        }
     } else {
         if (vlTOPp->range__DOT__cdone) {
             vlTOPp->range__DOT__we = 1U;
         } else {
-            if ((1U & (~ (IData)(vlTOPp->range__DOT__cgo)))) {
+            if (((IData)(vlTOPp->range__DOT__running) 
+                 & (~ (IData)(vlTOPp->range__DOT__cgo)))) {
                 __Vdly__range__DOT__din = (0xffffU 
                                            & ((IData)(1U) 
                                               + (IData)(vlTOPp->range__DOT__din)));
@@ -173,7 +174,15 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__2(Vrange__Syms* __restrict vlSymsp) {
     vlTOPp->range__DOT__n = __Vdly__range__DOT__n;
     vlTOPp->range__DOT__cdone = __Vdly__range__DOT__cdone;
     vlTOPp->range__DOT__din = __Vdly__range__DOT__din;
+    vlTOPp->range__DOT__running = __Vdly__range__DOT__running;
     vlTOPp->range__DOT__num = __Vdly__range__DOT__num;
+}
+
+void Vrange::_initial__TOP__2(Vrange__Syms* __restrict vlSymsp) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vrange::_initial__TOP__2\n"); );
+    Vrange* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
+    // Body
+    vlTOPp->range__DOT__running = 0U;
 }
 
 VL_INLINE_OPT void Vrange::_settle__TOP__3(Vrange__Syms* __restrict vlSymsp) {
@@ -190,7 +199,7 @@ void Vrange::_eval(Vrange__Syms* __restrict vlSymsp) {
     Vrange* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Body
     if (((IData)(vlTOPp->clk) & (~ (IData)(vlTOPp->__Vclklast__TOP__clk)))) {
-        vlTOPp->_sequent__TOP__2(vlSymsp);
+        vlTOPp->_sequent__TOP__1(vlSymsp);
         vlTOPp->__Vm_traceActivity = (2U | vlTOPp->__Vm_traceActivity);
     }
     vlTOPp->_settle__TOP__3(vlSymsp);
@@ -203,9 +212,9 @@ void Vrange::_eval_initial(Vrange__Syms* __restrict vlSymsp) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vrange::_eval_initial\n"); );
     Vrange* __restrict vlTOPp VL_ATTR_UNUSED = vlSymsp->TOPp;
     // Body
-    vlTOPp->_initial__TOP__1(vlSymsp);
-    vlTOPp->__Vm_traceActivity = (1U | vlTOPp->__Vm_traceActivity);
     vlTOPp->__Vclklast__TOP__clk = vlTOPp->clk;
+    vlTOPp->_initial__TOP__2(vlSymsp);
+    vlTOPp->__Vm_traceActivity = (1U | vlTOPp->__Vm_traceActivity);
 }
 
 void Vrange::final() {

@@ -88,8 +88,8 @@ VL_MODULE(Vrange) {
   public:
     static void _eval_initial(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
     static void _eval_settle(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
-    static void _initial__TOP__1(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
-    static void _sequent__TOP__2(Vrange__Syms* __restrict vlSymsp);
+    static void _initial__TOP__2(Vrange__Syms* __restrict vlSymsp) VL_ATTR_COLD;
+    static void _sequent__TOP__1(Vrange__Syms* __restrict vlSymsp);
     static void _settle__TOP__3(Vrange__Syms* __restrict vlSymsp);
     static void traceChgThis(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
     static void traceChgThis__2(Vrange__Syms* __restrict vlSymsp, VerilatedVcd* vcdp, uint32_t code);
