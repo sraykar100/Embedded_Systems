@@ -32,13 +32,22 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
          r ( .* ); // Connect everything with matching names
 
    // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
+
+      logic [11:0] start_display;
+      logic [31:0] start_index;
+
+      start_index <= 0;
+
+      assign start_display = SW[11:0] + start_index;
+      start <= SW;
+      
    always_comb begin
-      n_ones    = start[11:0] % 10;
-      n_tens    = (start[11:0] / 10) % 10;
-      n_hundreds = (start[11:0] / 100) % 10;
-      c_ones    = count % 10;
-      c_tens    = (count / 10) % 10;
-      c_hundreds = (count / 100) % 10;
+      n_ones    = start_display % 10;
+      n_tens    = (start_display / 10) % 10;
+      n_hundreds = (start_display / 100) % 10;
+      assign c_ones    = count % 10;
+      assign c_tens    = (count / 10) % 10;
+      assign c_hundreds = (count / 100) % 10;
    end
 
    // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
@@ -55,24 +64,30 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    assign go = KEY[3];
 
    always_ff @(posedge clk) begin
-      if (go && ~done) begin
+      if (KEY[3]) begin
          start <= SW;
+         start_index <= 0;
+         go <= 1;
       end
       else begin
-            start <= 0;
-            counter <= counter + 1;
-            if (counter == 22'd1000000) begin
-                  counter <= 0;
+            go <= 0;
+            if (done) begin
+                  start <= start_index;
             end
-            if (KEY[0] && start < 255) begin
-                  start <= start + 1;
-            end
-            else if (KEY[1] && start > 0) begin
-                  start <= start - 1;
-            end
-            else if (KEY[2]) begin
-                  start <= 0;
-            end
+            // start <= 0;
+            // counter <= counter + 1;
+            // if (counter == 22'd1000000) begin
+            //       counter <= 0;
+            // end
+            // if (KEY[0] && start < 255) begin
+            //       start <= start + 1;
+            // end
+            // else if (KEY[1] && start > 0) begin
+            //       start <= start - 1;
+            // end
+            // else if (KEY[2]) begin
+            //       start <= 0;
+            // end
       end
    end
   
