@@ -22,7 +22,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    logic [15:0] 		count;
    logic [21:0] 		counter;
 
-   logic [11:0] 		n;
+//    logic [11:0] 		n;
    
    assign clk = CLOCK_50;
  
@@ -33,11 +33,14 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg0 (.a(count[3:0]),   .y(HEX0));  
    hex7seg seg1 (.a(count[7:4]),   .y(HEX1));
    hex7seg seg2 (.a(count[11:8]),  .y(HEX2));
+
+   count[15:12] <= 4'h0; // unused should be blank
    
    // Unused, should be blank
    hex7seg seg3 (.a(4'h0),   .y(HEX3));
    hex7seg seg4 (.a(4'h0),   .y(HEX4));
    hex7seg seg5 (.a(4'h0),  .y(HEX5));
+   assign LEDR = 0; // LED off
    
 
    range #(.RAM_WORDS(256), .RAM_ADDR_BITS(8)) r1(
@@ -51,7 +54,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    assign go = KEY[3];
 
    always_ff @(posedge clk) begin
-      if (go) begin
+      if (go && ~done) begin
          start <= SW;
       end
       else begin
