@@ -20,6 +20,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    logic 			clk, go, done;   
    logic [31:0] 		start;
    logic [15:0] 		count;
+   logic [21:0] 		counter;
 
    logic [11:0] 		n;
    
@@ -28,15 +29,46 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
          r ( .* ); // Connect everything with matching names
 
-   // Replace this comment and the code below it with your own code;
-   // The code below is merely to suppress Verilator lint warnings
-   assign HEX0 = {KEY[2:0], KEY[3:0]};
-   assign HEX1 = SW[6:0];
-   assign HEX2 = {(n == 12'b0), (count == 16'b0) ^ KEY[1],
-		  go, done ^ KEY[0], SW[9:7]};
-   assign HEX3 = HEX0;
-   assign HEX4 = HEX1;
-   assign HEX5 = HEX2;
+   // One hex7seg instance per 7-segment display (each digit is 4 bits)
+   hex7seg seg0 (.a(count[3:0]),   .y(HEX0));  
+   hex7seg seg1 (.a(count[7:4]),   .y(HEX1));
+   hex7seg seg2 (.a(count[11:8]),  .y(HEX2));
+
+   range #(.RAM_WORDS(256), .RAM_ADDR_BITS(8)) r1(
+      .clk(clk), 
+      .go(go), 
+      .start(start), 
+      .done(done), 
+      .count(count)
+   );
+
+   assign go = KEY[3];
+
+   always_ff @(posedge clk) begin
+      if (go) begin
+         start <= SW;
+      end
+      else begin
+            start <= 0;
+            counter <= counter + 1;
+            if (counter == 22'd1000000) begin
+                  counter <= 0;
+            end
+            if (KEY[0] && start < 255) begin
+                  start <= start + 1;
+            end
+            else if (KEY[1] && start > 0) begin
+                  start <= start - 1;
+            end
+            else if (KEY[2]) begin
+                  start <= 0;
+            end
+      end
+   end
+
+
+
+
    assign LEDR = SW;
    assign go = KEY[0];
    assign start = {SW[1:0], SW, SW, SW};
