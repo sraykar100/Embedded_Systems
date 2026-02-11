@@ -36,7 +36,10 @@ module range
 			din <= 1;
 			cgo <= 1;
 		end
-		if (cgo)	cgo <= 0;
+		if (cgo) begin
+			cgo <= 0;
+			din <= 1;
+		end
 		if (we) begin
 		   we <= 0;
 		   n <= n + 1;

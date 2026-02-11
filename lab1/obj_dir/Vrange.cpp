@@ -142,6 +142,7 @@ VL_INLINE_OPT void Vrange::_sequent__TOP__1(Vrange__Syms* __restrict vlSymsp) {
     }
     if (vlTOPp->range__DOT__cgo) {
         __Vdly__range__DOT__cgo = 0U;
+        __Vdly__range__DOT__din = 1U;
     }
     if (vlTOPp->range__DOT__we) {
         __Vdly__range__DOT__n = ((IData)(1U) + vlTOPp->range__DOT__n);
