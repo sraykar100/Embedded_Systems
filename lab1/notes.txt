@@ -1,0 +1,123 @@
+NOTES TO SELF
+=============
+
+Non-Blocking Assignment Priority in SystemVerilog always_ff Blocks
+------------------------------------------------------------------
+
+Key rule: In a single always_ff block, ALL non-blocking assignments (<=)
+evaluate their right-hand sides using the signal values from the START of
+the clock cycle. The actual updates don't take effect until AFTER the
+entire block finishes. If two non-blocking assignments target the same
+signal, the LAST one in source order wins.
+
+
+The Bug
+-------
+
+We had two independent if-blocks in range.sv:
+
+    if (go) begin          // Block A (appeared first)
+        din <= 1;
+        cgo <= 1;
+    end
+    if (cgo) begin         // Block B
+        cgo <= 0;
+    end
+    ...
+    else if (running && ~cgo) din <= din + 1;   // Block C (appeared last)
+
+The problem: when go is held high by the debouncer for thousands of
+cycles, Blocks A and C can BOTH fire in the same cycle. Block A schedules
+din <= 1, but Block C schedules din <= din + 1. Because Block C is LATER
+in the source, its assignment wins. This caused din to be 2 instead of 1
+at the start of computation -- an off-by-one error (+1 on all counts).
+
+
+Why cgo alternated
+------------------
+
+Cycle 0: go=1, cgo=0 (initial)
+  - Block A fires: cgo <= 1 (scheduled)
+  - Block B checks cgo: it's 0 (START-of-cycle value), so Block B skips
+  - End of cycle: cgo = 1
+
+Cycle 1: go=1, cgo=1 (updated from last cycle)
+  - Block A fires: cgo <= 1 (scheduled)
+  - Block B checks cgo: it's 1 (START-of-cycle value), so Block B fires: cgo <= 0
+  - Two assignments to cgo: <= 1 (from A) and <= 0 (from B). B is later, B wins.
+  - End of cycle: cgo = 0
+
+Cycle 2: go=1, cgo=0
+  - Same as Cycle 0. cgo ends up = 1.
+
+Pattern: cgo alternates 0, 1, 0, 1, ... while go is held high.
+
+
+Why din got corrupted
+---------------------
+
+On cycles where cgo=0 AND running=1 AND go=1 (every other cycle):
+
+  Block A (line 36):  din <= 1          (scheduled first)
+  Block C (line 57):  din <= din + 1    (scheduled later -- WINS)
+
+  din was 1 at the start of the cycle, so din + 1 = 2.
+  Block C's assignment overwrites Block A's because it appears later.
+
+On cycles where cgo=1 AND go=1:
+
+  Block A (line 36):  din <= 1          (scheduled)
+  Block C:            doesn't fire (cgo=1 means ~cgo=0)
+
+  din = 1.
+
+So din alternates between 1 and 2 while go is held. Whether it's 1 or 2
+when go finally goes low is random (depends on exact button timing).
+This gives a non-deterministic +1 on iteration counts.
+
+
+The Fix
+-------
+
+Move the if (go) block to the END of the always_ff block:
+
+    always_ff @(posedge clk) begin
+        // ... all other logic first ...
+        else if (running && ~cgo) din <= din + 1;   // may fire
+
+        // go at the very end -- its assignments always win
+        if (go) begin
+            running <= 1;
+            n <= start;
+            num <= 0;
+            din <= 1;      // last assignment to din, always wins
+            cgo <= 1;      // last assignment to cgo, always wins
+        end
+    end
+
+Now when go is high:
+  - Even if Block C fires and schedules din <= 2 earlier in the block,
+    the go block fires LAST and schedules din <= 1, which overrides it.
+  - cgo <= 1 from go overrides any cgo <= 0 from the cgo-clearing block.
+  - Result: din is locked to 1, cgo is locked to 1 for the entire
+    duration of the button press. Clean handoff when go goes low.
+
+
+Example: Correct flow for n=7
+-----------------------------
+
+Collatz sequence: 7, 22, 11, 34, 17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1
+That's 17 elements.
+
+1. go held high: din=1, cgo=1 (locked by the fix). Module in reset.
+2. go goes low: cgo=1, so collatz loads n=7 on this cycle.
+3. Next cycle: cgo cleared to 0. Collatz starts iterating. din increments
+   each cycle (starting from din=1, going to din=2, 3, ...).
+4. Collatz reaches dout=2 after 15 iteration steps. din has been
+   incremented 15 times (from 1 to 16).
+5. Collatz sets done. din increments once more to 17 (because cdone
+   hasn't propagated to range yet -- it uses the START-of-cycle value).
+6. Next cycle: cdone=1 seen. we<=1. din stays at 17.
+7. Next cycle: we=1. mem[0] <= 17. Correct!
+
+Before the fix, din could start at 2, giving mem[0] = 18. Wrong by +1.
