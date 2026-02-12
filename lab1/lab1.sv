@@ -34,6 +34,31 @@ end
 end
 endmodule
 
+module button_press #(
+    parameter HOLD   = 25_000_000,  // cycles before auto-repeat starts (~0.5s at 50 MHz)
+    parameter REPEAT =  5_000_000   // cycles between repeats (~0.1s at 50 MHz)
+)(
+    input  logic clk,
+    input  logic btn,    // debounced level from debouncer
+    output logic pulse   // single-cycle pulse
+);
+
+    logic prev;
+    logic [24:0] cnt;
+    logic held;
+
+    always_ff @(posedge clk) begin
+        prev  <= btn;
+        pulse <= 0;
+
+        if (!btn)                                    begin cnt <= 0; held <= 0; end
+        else if (!prev)                                    pulse <= 1;                // rising edge: immediate pulse
+        else if (cnt < (held ? REPEAT : HOLD) - 1)        cnt <= cnt + 1;            // counting toward threshold
+        else                                         begin pulse <= 1; cnt <= 0; held <= 1; end  // threshold hit: pulse & reset
+    end
+
+endmodule
+
 module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     
 	     input logic [3:0] 	KEY, // Pushbuttons; KEY[0] is rightmost
@@ -49,7 +74,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    logic 			clk, done;
    logic [31:0] 		start;
    logic [15:0] 		count;
-   logic [21:0] 		counter;
+   
 
    // Decimal digits (0-9) for display: extract from binary using / and %
    logic [3:0] 		n_ones, n_tens, n_hundreds;   // n = start[11:0]
@@ -65,6 +90,11 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    debouncer sub_debounce(clk, ~KEY[1], sub); 
    debouncer reset_debounce(clk, ~KEY[2], reset);
    debouncer go_debounce(clk, ~KEY[3], go);
+
+   // Convert debounced add/sub levels into single-cycle pulses with auto-repeat
+   logic add_pulse, sub_pulse;
+   button_press add_ctrl(.clk(clk), .btn(add), .pulse(add_pulse));
+   button_press sub_ctrl(.clk(clk), .btn(sub), .pulse(sub_pulse));
 
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
          r (clk, go, start, done, count); // Connect everything with matching names
@@ -101,22 +131,17 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     ready <= 1;
      end
      if (ready) begin
-	     counter <= counter + 1;
-	     if (counter == 22'd1000000) begin
-		counter <= 0;
-		if (add && start < 255) begin
+		if (add_pulse && start < 255) begin
 			start <= start + 1;
 			start_index <= start_index + 1;
-
-             	end
-		else if (sub && start > 0) begin
-                	start <= start - 1;
+		end
+		else if (sub_pulse && start > 0) begin
+			start <= start - 1;
 			start_index <= start_index - 1;
-             	end
-             	else if (reset) begin
-                	start <= 0;
+		end
+		else if (reset) begin
+			start <= 0;
 			start_index <= 0;
-            	end
 		end
      end
    end
