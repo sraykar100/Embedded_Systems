@@ -29,13 +29,6 @@ module range
 
      	always_ff @(posedge clk) begin
 		if (~running) done <= 0;
-		if (go) begin 
-			running <= 1;
-			n <= start;
-			num <= 0;
-			din <= 1;
-			cgo <= 1;
-		end
 		if (cgo) begin
 			cgo <= 0;
 		end
@@ -55,6 +48,17 @@ module range
 			n <= n + 1;
 		end
 		else if (running && ~cgo) din <= din + 1;
+
+		// go MUST be last: its non-blocking assignments
+		// override everything above, keeping din=1 and
+		// cgo=1 locked while the button is held.
+		if (go) begin 
+			running <= 1;
+			n <= start;
+			num <= 0;
+			din <= 1;
+			cgo <= 1;
+		end
 	end
 /* Replace this comment and the code above with your solution. */
 
