@@ -22,14 +22,14 @@ always @(posedge clk) sync_1 <= sync_0;
 // Now we debounce: we wait until count (a 16 bit integer) reaches its max
 // value. Since it's a 50 MHz clock, this should happen in milliseconds. 
 
-logic [15:0] timer; 
+logic [18:0] timer; 
 always @ (posedge clk) begin
 if(next == sync_1) begin
 	timer <=0;
 end
 else begin
 	timer <= timer + 1;
-	if(timer == 16'hffff) next = ~next;
+	if(timer == 19'h7ffff) next = ~next;
 end
 end
 endmodule
