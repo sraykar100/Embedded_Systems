@@ -61,10 +61,10 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    logic reset; // This is tied to Key[2] via a debouncer, and resets the display so that the collatz number of SW is shown. 
    logic go; // This is tied to Key[3] via a debouncer, and starts the range module from the initial value on SW. 
 
-   debouncer add_debounce(clk, KEY[0], add);
-   debouncer sub_debounce(clk, KEY[1], sub); 
-   debouncer reset_debounce(clk, KEY[2], reset);
-   debouncer go_debounce(clk, KEY[3], go);
+   debouncer add_debounce(clk, ~KEY[0], add);
+   debouncer sub_debounce(clk, ~KEY[1], sub); 
+   debouncer reset_debounce(clk, ~KEY[2], reset);
+   debouncer go_debounce(clk, ~KEY[3], go);
 
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
          r (clk, go, start, done, count); // Connect everything with matching names
@@ -83,8 +83,9 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg2 (.a(c_hundreds), .y(HEX2));
    hex7seg seg1 (.a(c_tens),     .y(HEX1));
    hex7seg seg0 (.a(c_ones),     .y(HEX0));
-
-   assign LEDR = SW;
+	
+   	logic running = 0;
+   	
    always_ff @(posedge clk) begin
 	// always update display values 
 	// Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
@@ -96,10 +97,11 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    	c_hundreds <= (count / 100) % 10;
       if (go) begin
 	      start <= SW;
+	      running = 1;
       end
       if (done) begin
-            start <= 0;
-            // start <= 0;
+	     running <= 0;
+             start <= 0;
             // counter <= counter + 1;
             // if (counter == 22'd1000000) begin
             //       counter <= 0;

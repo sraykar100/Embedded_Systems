@@ -44,7 +44,7 @@ module range
 		   din <= 1;
 		   // n <= n + 1;
 		   num <= num + 1;
-		   if (num == RAM_WORDS - 1) begin
+		   if (num == RAM_ADDR_BITS'(RAM_WORDS - 1)) begin
 			   running <= 0;
 			   done <= 1;
 		   end
