@@ -76,25 +76,19 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
       assign start_display = SW;
    
    // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
-   hex7seg seg5 (.a(n_hundreds), .y(HEX5));
-   hex7seg seg4 (.a(n_tens),     .y(HEX4));
-   hex7seg seg3 (.a(n_ones),     .y(HEX3));
+   hex7seg seg5 (.a(start_display[11:8]), .y(HEX5));
+   hex7seg seg4 (.a(start_display[7:4]),     .y(HEX4));
+   hex7seg seg3 (.a(start_display[3:0]),     .y(HEX3));
    // Right 3 digits (HEX2, HEX1, HEX0): iteration count in decimal
-   hex7seg seg2 (.a(c_hundreds), .y(HEX2));
-   hex7seg seg1 (.a(c_tens),     .y(HEX1));
-   hex7seg seg0 (.a(c_ones),     .y(HEX0));
+   hex7seg seg2 (.a(count[11:8]), .y(HEX2));
+   hex7seg seg1 (.a(count[7:4]),     .y(HEX1));
+   hex7seg seg0 (.a(count[3:0]),     .y(HEX0));
 	
    	logic running = 0;
    	
    always_ff @(posedge clk) begin
 	// always update display values 
 	// Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
-   	n_ones <= (start_display % 10);
-   	n_tens <= (start_display / 10) % 10;
-   	n_hundreds <= (start_display / 100) % 10;
-   	c_ones <= count % 10;
-   	c_tens <= (count / 10) % 10;
-   	c_hundreds <= (count / 100) % 10;
       if (go) begin
 	      start <= SW;
 	      running = 1;

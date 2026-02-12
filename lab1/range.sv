@@ -49,7 +49,7 @@ module range
 			   done <= 1;
 		   end
 		end
-		else if (cdone) begin
+		else if (cdone && running) begin
 			we <= 1;
 			cgo <= 1;
 			n <= n + 1;
