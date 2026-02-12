@@ -85,7 +85,8 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg1 (.a(count[7:4]),     .y(HEX1));
    hex7seg seg0 (.a(count[3:0]),     .y(HEX0));
 	
-   	logic ready;
+   logic ready;
+   assign LEDR = SW;
    	
    always_ff @(posedge clk) begin
 	// always update display values 
