@@ -22,14 +22,14 @@ always @(posedge clk) sync_1 <= sync_0;
 // Now we debounce: we wait until count (a 16 bit integer) reaches its max
 // value. Since it's a 50 MHz clock, this should happen in milliseconds. 
 
-logic [15:0] count; 
+logic [15:0] timer; 
 always @ (posedge clk) begin
 if(next == sync_1) begin
-	count <=0;
+	timer <=0;
 end
 else begin
-	count <= count + 1;
-	if(count == 16'hffff) next = ~next;
+	timer <= timer + 1;
+	if(timer == 16'hffff) next = ~next;
 end
 end
 endmodule
@@ -71,9 +71,10 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 
    // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
 
-      logic [11:0] start_display;
+      logic [11:0] start_display; // Value whose collatz number is shown on the display. 
+      logic [7:0] start_index; // Start index is what's changed upon increment/decrement
 
-      assign start_display = SW;
+      assign start_display = SW + start_index;
    
    // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
    hex7seg seg5 (.a(start_display[11:8]), .y(HEX5));
@@ -84,31 +85,38 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg1 (.a(count[7:4]),     .y(HEX1));
    hex7seg seg0 (.a(count[3:0]),     .y(HEX0));
 	
-   	logic running = 0;
+   	logic ready;
    	
    always_ff @(posedge clk) begin
 	// always update display values 
 	// Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
       if (go) begin
 	      start <= SW;
-	      running = 1;
+	      ready <= 0;
+	      start_index <= 0;
       end
       if (done) begin
-	     running <= 0;
              start <= 0;
-            // counter <= counter + 1;
-            // if (counter == 22'd1000000) begin
-            //       counter <= 0;
-            // end
-            // if (KEY[0] && start < 255) begin
-            //       start <= start + 1;
-            // end
-            // else if (KEY[1] && start > 0) begin
-            //       start <= start - 1;
-            // end
-            // else if (KEY[2]) begin
-            //       start <= 0;
-            // end
-      end
+	     ready <= 1;
+     end
+     if (ready) begin
+	     counter <= counter + 1;
+	     if (counter == 22'd1000000) begin
+		counter <= 0;
+		if (add && start < 255) begin
+			start <= start + 1;
+			start_index <= start_index + 1;
+
+             	end
+		else if (sub && start > 0) begin
+                	start <= start - 1;
+			start_index <= start_index - 1;
+             	end
+             	else if (reset) begin
+                	start <= 0;
+			start_index <= 0;
+            	end
+		end
+     end
    end
 endmodule
