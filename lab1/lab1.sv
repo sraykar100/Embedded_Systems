@@ -1,9 +1,38 @@
 // CSEE 4840 Lab 1: Run and Display Collatz Conjecture Iteration Counts
 //
-// Spring 2023
+// Spring 2026
 //
-// By: <your name here>
-// Uni: <your uni here>
+// By: Siddharth Raykar & Shiyao Marcus Lam
+// Uni: sr4102 & sml2286
+
+// I got the code for the following debouncer from the University of Michigan
+// website. https://www.eecs.umich.edu/courses/eecs270/270lab/270_docs/debounce.html 
+// It's slightly modified, but the skeleton's the same. 
+
+module debouncer (input clk,
+	input switch,
+	output logic next);
+
+// This section synchronizes the input to the clk
+logic sync_0;
+logic sync_1;
+always @(posedge clk) sync_0 <= switch;
+always @(posedge clk) sync_1 <= sync_0;
+
+// Now we debounce: we wait until count (a 16 bit integer) reaches its max
+// value. Since it's a 50 MHz clock, this should happen in milliseconds. 
+
+logic [15:0] count; 
+always @ (posedge clk) begin
+if(next == sync_1) begin
+	count <=0;
+end
+else begin
+	count <= count + 1;
+	if(count == 16'hffff) next = ~next;
+end
+end
+endmodule
 
 module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     
@@ -17,7 +46,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
 	     output logic [9:0] LEDR // LEDs above the switches; LED[0] on right
 	     );
 
-   logic 			clk, go, done;
+   logic 			clk, done;
    logic [31:0] 		start;
    logic [15:0] 		count;
    logic [21:0] 		counter;
@@ -27,9 +56,18 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    logic [3:0] 		c_ones, c_tens, c_hundreds;   // iteration count
 
    assign clk = CLOCK_50;
+   logic add; // This is tied to Key[0] via a debouncer
+   logic sub; // This is tied to Key[1] via a debouncer
+   logic reset; // This is tied to Key[2] via a debouncer, and resets the display so that the collatz number of SW is shown. 
+   logic go; // This is tied to Key[3] via a debouncer, and starts the range module from the initial value on SW. 
+
+   debouncer add_debounce(clk, KEY[0], add);
+   debouncer sub_debounce(clk, KEY[1], sub); 
+   debouncer reset_debounce(clk, KEY[2], reset);
+   debouncer go_debounce(clk, KEY[3], go);
 
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
-         r ( .* ); // Connect everything with matching names
+         r (clk, go, start, done, count); // Connect everything with matching names
 
    // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
 
@@ -47,20 +85,17 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    hex7seg seg0 (.a(c_ones),     .y(HEX0));
 
    assign LEDR = SW;
-   assign go = KEY[1];
-	
    always_ff @(posedge clk) begin
 	// always update display values 
 	// Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
-      n_ones    <= start_display % 10;
-      n_tens    <= (start_display / 10) % 10;
-      n_hundreds <= (start_display / 100) % 10;
-      c_ones    <= count % 10;
-      c_tens    <= (count / 10) % 10;
-      c_hundreds <= (count / 100) % 10;
-      
+   	n_ones <= (start_display % 10);
+   	n_tens <= (start_display / 10) % 10;
+   	n_hundreds <= (start_display / 100) % 10;
+   	c_ones <= count % 10;
+   	c_tens <= (count / 10) % 10;
+   	c_hundreds <= (count / 100) % 10;
       if (go) begin
-         start <= SW;
+	      start <= SW;
       end
       if (done) begin
             start <= 0;
@@ -80,5 +115,4 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
             // end
       end
    end
-  
 endmodule
