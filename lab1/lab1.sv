@@ -34,13 +34,16 @@ end
 end
 endmodule
 
+// Takes the debounced button level and turns it into single-cycle pulses.
+// A quick tap gives you exactly one pulse. If you hold the button down,
+// it waits ~0.5s then starts firing pulses every ~0.1s for scrubbing.
 module button_press #(
-    parameter HOLD   = 25_000_000,  // cycles before auto-repeat starts (~0.5s at 50 MHz)
-    parameter REPEAT =  5_000_000   // cycles between repeats (~0.1s at 50 MHz)
+    parameter HOLD   = 25_000_000, // cycles before auto-repeat starts (~0.5s at 50 MHz)
+    parameter REPEAT =  5_000_000 // cycles between repeats (~0.1s at 50 MHz)
 )(
     input  logic clk,
-    input  logic btn,    // debounced level from debouncer
-    output logic pulse   // single-cycle pulse
+    input  logic btn, // debounced level from debouncer
+    output logic pulse // single-cycle pulse
 );
 
     logic prev;
@@ -51,10 +54,16 @@ module button_press #(
         prev  <= btn;
         pulse <= 0;
 
-        if (!btn)                                    begin cnt <= 0; held <= 0; end
-        else if (!prev)                                    pulse <= 1;                // rising edge: immediate pulse
-        else if (cnt < (held ? REPEAT : HOLD) - 1)        cnt <= cnt + 1;            // counting toward threshold
-        else                                         begin pulse <= 1; cnt <= 0; held <= 1; end  // threshold hit: pulse & reset
+        if (!btn) begin 
+            cnt <= 0; held <= 0; // button not pressed, reset everything
+        end 
+        else if (!prev) 
+            pulse <= 1; // rising edge, so return an immediate pulse
+        else if (cnt < (held ? REPEAT : HOLD) - 1) // button is pressed AND pressed last cycle too, but counter is not at threshold yet
+            cnt <= cnt + 1; // counting toward threshold
+        else begin 
+            pulse <= 1; cnt <= 0; held <= 1; // threshold hit: pulse & reset
+      end  
     end
 
 endmodule
@@ -91,7 +100,7 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    debouncer reset_debounce(clk, ~KEY[2], reset);
    debouncer go_debounce(clk, ~KEY[3], go);
 
-   // Convert debounced add/sub levels into single-cycle pulses with auto-repeat
+   // Typematic style for add/sub buttons. (hold vs. single press)
    logic add_pulse, sub_pulse;
    button_press add_ctrl(.clk(clk), .btn(add), .pulse(add_pulse));
    button_press sub_ctrl(.clk(clk), .btn(sub), .pulse(sub_pulse));
@@ -99,18 +108,16 @@ module lab1( input logic        CLOCK_50,  // 50 MHz Clock input
    range #(256, 8) // RAM_WORDS = 256, RAM_ADDR_BITS = 8)
          r (clk, go, start, done, count); // Connect everything with matching names
 
-   // Extract decimal digits: ones = val % 10, tens = (val/10) % 10, hundreds = (val/100) % 10
-
       logic [11:0] start_display; // Value whose collatz number is shown on the display. 
       logic [7:0] start_index; // Start index is what's changed upon increment/decrement
 
       assign start_display = SW + start_index;
    
-   // Left 3 digits (HEX5, HEX4, HEX3): n in decimal
+   // Left 3 digits: n in decimal
    hex7seg seg5 (.a(start_display[11:8]), .y(HEX5));
    hex7seg seg4 (.a(start_display[7:4]),     .y(HEX4));
    hex7seg seg3 (.a(start_display[3:0]),     .y(HEX3));
-   // Right 3 digits (HEX2, HEX1, HEX0): iteration count in decimal
+   // Right 3 digits: iteration count in decimal
    hex7seg seg2 (.a(count[11:8]), .y(HEX2));
    hex7seg seg1 (.a(count[7:4]),     .y(HEX1));
    hex7seg seg0 (.a(count[3:0]),     .y(HEX0));
