@@ -1,5 +1,5 @@
 Analysis & Synthesis report for lab1
-Wed Feb 11 23:03:50 2026
+Fri Feb 13 17:54:44 2026
 Quartus Prime Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
 
 
@@ -20,16 +20,17 @@ Quartus Prime Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
  12. Registers Packed Into Inferred Megafunctions
  13. Multiplexer Restructuring Statistics (Restructuring Performed)
  14. Source assignments for range:r|altsyncram:mem_rtl_0|altsyncram_g6n1:auto_generated
- 15. Parameter Settings for User Entity Instance: range:r
- 16. Parameter Settings for Inferred Entity Instance: range:r|altsyncram:mem_rtl_0
- 17. altsyncram Parameter Settings by Entity Instance
- 18. Port Connectivity Checks: "hex7seg:seg5"
- 19. Port Connectivity Checks: "range:r|collatz:c1"
- 20. Port Connectivity Checks: "range:r"
- 21. Post-Synthesis Netlist Statistics for Top Partition
- 22. Elapsed Time Per Partition
- 23. Analysis & Synthesis Messages
- 24. Analysis & Synthesis Suppressed Messages
+ 15. Parameter Settings for User Entity Instance: button_press:add_ctrl
+ 16. Parameter Settings for User Entity Instance: button_press:sub_ctrl
+ 17. Parameter Settings for User Entity Instance: range:r
+ 18. Parameter Settings for Inferred Entity Instance: range:r|altsyncram:mem_rtl_0
+ 19. altsyncram Parameter Settings by Entity Instance
+ 20. Port Connectivity Checks: "hex7seg:seg5"
+ 21. Port Connectivity Checks: "range:r|collatz:c1"
+ 22. Port Connectivity Checks: "range:r"
+ 23. Post-Synthesis Netlist Statistics for Top Partition
+ 24. Elapsed Time Per Partition
+ 25. Analysis & Synthesis Messages
 
 
 
@@ -56,13 +57,13 @@ https://fpgasoftware.intel.com/eula.
 +-------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                  ;
 +---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Wed Feb 11 23:03:50 2026       ;
+; Analysis & Synthesis Status     ; Successful - Fri Feb 13 17:54:44 2026       ;
 ; Quartus Prime Version           ; 21.1.0 Build 842 10/21/2021 SJ Lite Edition ;
 ; Revision Name                   ; lab1                                        ;
 ; Top-level Entity Name           ; lab1                                        ;
 ; Family                          ; Cyclone V                                   ;
 ; Logic utilization (in ALMs)     ; N/A                                         ;
-; Total registers                 ; 228                                         ;
+; Total registers                 ; 254                                         ;
 ; Total pins                      ; 67                                          ;
 ; Total virtual pins              ; 0                                           ;
 ; Total block memory bits         ; 3,072                                       ;
@@ -182,26 +183,28 @@ https://fpgasoftware.intel.com/eula.
 +----------------------------+-------------+
 
 
-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-; Analysis & Synthesis Source Files Read                                                                                                                                                               ;
-+----------------------------------+-----------------+------------------------------+--------------------------------------------------------------------------------------------------------+---------+
-; File Name with User-Entered Path ; Used in Netlist ; File Type                    ; File Name with Absolute Path                                                                           ; Library ;
-+----------------------------------+-----------------+------------------------------+--------------------------------------------------------------------------------------------------------+---------+
-; hex7seg.sv                       ; yes             ; User SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/hex7seg.sv             ;         ;
-; collatz.sv                       ; yes             ; User SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/collatz.sv             ;         ;
-; range.sv                         ; yes             ; User SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv               ;         ;
-; lab1.sv                          ; yes             ; User SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv                ;         ;
-; altsyncram.tdf                   ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altsyncram.tdf                             ;         ;
-; stratix_ram_block.inc            ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/stratix_ram_block.inc                      ;         ;
-; lpm_mux.inc                      ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/lpm_mux.inc                                ;         ;
-; lpm_decode.inc                   ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/lpm_decode.inc                             ;         ;
-; aglobal211.inc                   ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/aglobal211.inc                             ;         ;
-; a_rdenreg.inc                    ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/a_rdenreg.inc                              ;         ;
-; altrom.inc                       ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altrom.inc                                 ;         ;
-; altram.inc                       ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altram.inc                                 ;         ;
-; altdpram.inc                     ; yes             ; Megafunction                 ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altdpram.inc                               ;         ;
-; db/altsyncram_g6n1.tdf           ; yes             ; Auto-Generated Megafunction  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/db/altsyncram_g6n1.tdf ;         ;
-+----------------------------------+-----------------+------------------------------+--------------------------------------------------------------------------------------------------------+---------+
++------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Analysis & Synthesis Source Files Read                                                                                                                                                                     ;
++----------------------------------+-----------------+------------------------------------+--------------------------------------------------------------------------------------------------------+---------+
+; File Name with User-Entered Path ; Used in Netlist ; File Type                          ; File Name with Absolute Path                                                                           ; Library ;
++----------------------------------+-----------------+------------------------------------+--------------------------------------------------------------------------------------------------------+---------+
+; hex7seg.sv                       ; yes             ; User SystemVerilog HDL File        ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/hex7seg.sv             ;         ;
+; collatz.sv                       ; yes             ; User SystemVerilog HDL File        ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/collatz.sv             ;         ;
+; range.sv                         ; yes             ; User SystemVerilog HDL File        ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv               ;         ;
+; lab1.sv                          ; yes             ; User SystemVerilog HDL File        ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv                ;         ;
+; debouncer.sv                     ; yes             ; Auto-Found SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/debouncer.sv           ;         ;
+; button_press.sv                  ; yes             ; Auto-Found SystemVerilog HDL File  ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/button_press.sv        ;         ;
+; altsyncram.tdf                   ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altsyncram.tdf                             ;         ;
+; stratix_ram_block.inc            ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/stratix_ram_block.inc                      ;         ;
+; lpm_mux.inc                      ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/lpm_mux.inc                                ;         ;
+; lpm_decode.inc                   ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/lpm_decode.inc                             ;         ;
+; aglobal211.inc                   ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/aglobal211.inc                             ;         ;
+; a_rdenreg.inc                    ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/a_rdenreg.inc                              ;         ;
+; altrom.inc                       ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altrom.inc                                 ;         ;
+; altram.inc                       ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altram.inc                                 ;         ;
+; altdpram.inc                     ; yes             ; Megafunction                       ; /tools/intel/intelFPGA/21.1/quartus/libraries/megafunctions/altdpram.inc                               ;         ;
+; db/altsyncram_g6n1.tdf           ; yes             ; Auto-Generated Megafunction        ; /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/db/altsyncram_g6n1.tdf ;         ;
++----------------------------------+-----------------+------------------------------------+--------------------------------------------------------------------------------------------------------+---------+
 
 
 +--------------------------------------------------------------+
@@ -209,16 +212,16 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------------+----------------+
 ; Resource                                    ; Usage          ;
 +---------------------------------------------+----------------+
-; Estimate of Logic utilization (ALMs needed) ; 248            ;
+; Estimate of Logic utilization (ALMs needed) ; 227            ;
 ;                                             ;                ;
-; Combinational ALUT usage for logic          ; 447            ;
+; Combinational ALUT usage for logic          ; 422            ;
 ;     -- 7 input functions                    ; 0              ;
-;     -- 6 input functions                    ; 47             ;
-;     -- 5 input functions                    ; 44             ;
-;     -- 4 input functions                    ; 48             ;
-;     -- <=3 input functions                  ; 308            ;
+;     -- 6 input functions                    ; 31             ;
+;     -- 5 input functions                    ; 58             ;
+;     -- 4 input functions                    ; 54             ;
+;     -- <=3 input functions                  ; 279            ;
 ;                                             ;                ;
-; Dedicated logic registers                   ; 228            ;
+; Dedicated logic registers                   ; 254            ;
 ;                                             ;                ;
 ; I/O pins                                    ; 67             ;
 ; Total MLAB memory bits                      ; 0              ;
@@ -227,9 +230,9 @@ https://fpgasoftware.intel.com/eula.
 ; Total DSP Blocks                            ; 0              ;
 ;                                             ;                ;
 ; Maximum fan-out node                        ; CLOCK_50~input ;
-; Maximum fan-out                             ; 240            ;
-; Total fan-out                               ; 2509           ;
-; Average fan-out                             ; 3.06           ;
+; Maximum fan-out                             ; 266            ;
+; Total fan-out                               ; 2604           ;
+; Average fan-out                             ; 3.17           ;
 +---------------------------------------------+----------------+
 
 
@@ -238,21 +241,23 @@ https://fpgasoftware.intel.com/eula.
 +-------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+-------------------------------------------------------------------+-----------------+--------------+
 ; Compilation Hierarchy Node                ; Combinational ALUTs ; Dedicated Logic Registers ; Block Memory Bits ; DSP Blocks ; Pins ; Virtual Pins ; Full Hierarchy Name                                               ; Entity Name     ; Library Name ;
 +-------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+-------------------------------------------------------------------+-----------------+--------------+
-; |lab1                                     ; 447 (173)           ; 228 (63)                  ; 3072              ; 0          ; 67   ; 0            ; |lab1                                                             ; lab1            ; work         ;
-;    |debouncer:add_debounce|               ; 22 (22)             ; 19 (19)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:add_debounce                                      ; debouncer       ; work         ;
-;    |debouncer:go_debounce|                ; 22 (22)             ; 19 (19)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:go_debounce                                       ; debouncer       ; work         ;
-;    |debouncer:reset_debounce|             ; 22 (22)             ; 19 (19)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:reset_debounce                                    ; debouncer       ; work         ;
-;    |debouncer:sub_debounce|               ; 22 (22)             ; 19 (19)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:sub_debounce                                      ; debouncer       ; work         ;
+; |lab1                                     ; 422 (70)            ; 254 (41)                  ; 3072              ; 0          ; 67   ; 0            ; |lab1                                                             ; lab1            ; work         ;
+;    |button_press:add_ctrl|                ; 43 (43)             ; 28 (28)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|button_press:add_ctrl                                       ; button_press    ; work         ;
+;    |button_press:sub_ctrl|                ; 43 (43)             ; 28 (28)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|button_press:sub_ctrl                                       ; button_press    ; work         ;
+;    |debouncer:add_debounce|               ; 20 (20)             ; 17 (17)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:add_debounce                                      ; debouncer       ; work         ;
+;    |debouncer:go_debounce|                ; 20 (20)             ; 17 (17)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:go_debounce                                       ; debouncer       ; work         ;
+;    |debouncer:reset_debounce|             ; 20 (20)             ; 17 (17)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:reset_debounce                                    ; debouncer       ; work         ;
+;    |debouncer:sub_debounce|               ; 20 (20)             ; 17 (17)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|debouncer:sub_debounce                                      ; debouncer       ; work         ;
 ;    |hex7seg:seg0|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg0                                                ; hex7seg         ; work         ;
 ;    |hex7seg:seg1|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg1                                                ; hex7seg         ; work         ;
 ;    |hex7seg:seg2|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg2                                                ; hex7seg         ; work         ;
 ;    |hex7seg:seg3|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg3                                                ; hex7seg         ; work         ;
 ;    |hex7seg:seg4|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg4                                                ; hex7seg         ; work         ;
 ;    |hex7seg:seg5|                         ; 7 (7)               ; 0 (0)                     ; 0                 ; 0          ; 0    ; 0            ; |lab1|hex7seg:seg5                                                ; hex7seg         ; work         ;
-;    |range:r|                              ; 144 (70)            ; 89 (56)                   ; 3072              ; 0          ; 0    ; 0            ; |lab1|range:r                                                     ; range           ; work         ;
+;    |range:r|                              ; 144 (71)            ; 89 (56)                   ; 3072              ; 0          ; 0    ; 0            ; |lab1|range:r                                                     ; range           ; work         ;
 ;       |altsyncram:mem_rtl_0|              ; 0 (0)               ; 0 (0)                     ; 3072              ; 0          ; 0    ; 0            ; |lab1|range:r|altsyncram:mem_rtl_0                                ; altsyncram      ; work         ;
 ;          |altsyncram_g6n1:auto_generated| ; 0 (0)               ; 0 (0)                     ; 3072              ; 0          ; 0    ; 0            ; |lab1|range:r|altsyncram:mem_rtl_0|altsyncram_g6n1:auto_generated ; altsyncram_g6n1 ; work         ;
-;       |collatz:c1|                        ; 74 (74)             ; 33 (33)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|range:r|collatz:c1                                          ; collatz         ; work         ;
+;       |collatz:c1|                        ; 73 (73)             ; 33 (33)                   ; 0                 ; 0          ; 0    ; 0            ; |lab1|range:r|collatz:c1                                          ; collatz         ; work         ;
 +-------------------------------------------+---------------------+---------------------------+-------------------+------------+------+--------------+-------------------------------------------------------------------+-----------------+--------------+
 Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
 
@@ -290,12 +295,12 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 228   ;
-; Number of registers using Synchronous Clear  ; 147   ;
-; Number of registers using Synchronous Load   ; 67    ;
+; Total registers                              ; 254   ;
+; Number of registers using Synchronous Clear  ; 167   ;
+; Number of registers using Synchronous Load   ; 77    ;
 ; Number of registers using Asynchronous Clear ; 0     ;
 ; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 134   ;
+; Number of registers using Clock Enable       ; 162   ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -309,18 +314,20 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +----------------------+-------------------+------+
 
 
-+-------------------------------------------------------------------------------------------------------------------------------------------------+
-; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                  ;
-+--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------+
-; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output        ;
-+--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------+
-; 3:1                ; 32 bits   ; 64 LEs        ; 0 LEs                ; 64 LEs                 ; Yes        ; |lab1|range:r|n[15]               ;
-; 4:1                ; 29 bits   ; 58 LEs        ; 58 LEs               ; 0 LEs                  ; Yes        ; |lab1|range:r|collatz:c1|dout[20] ;
-; 4:1                ; 15 bits   ; 30 LEs        ; 0 LEs                ; 30 LEs                 ; Yes        ; |lab1|range:r|din[9]              ;
-; 5:1                ; 8 bits    ; 24 LEs        ; 8 LEs                ; 16 LEs                 ; Yes        ; |lab1|start_index[3]              ;
-; 6:1                ; 22 bits   ; 88 LEs        ; 22 LEs               ; 66 LEs                 ; Yes        ; |lab1|start[18]                   ;
-; 6:1                ; 10 bits   ; 40 LEs        ; 20 LEs               ; 20 LEs                 ; Yes        ; |lab1|start[4]                    ;
-+--------------------+-----------+---------------+----------------------+------------------------+------------+-----------------------------------+
++---------------------------------------------------------------------------------------------------------------------------------------------------+
+; Multiplexer Restructuring Statistics (Restructuring Performed)                                                                                    ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
+; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output          ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
+; 3:1                ; 32 bits   ; 64 LEs        ; 0 LEs                ; 64 LEs                 ; Yes        ; |lab1|range:r|n[31]                 ;
+; 4:1                ; 25 bits   ; 50 LEs        ; 0 LEs                ; 50 LEs                 ; Yes        ; |lab1|button_press:add_ctrl|cnt[9]  ;
+; 4:1                ; 25 bits   ; 50 LEs        ; 0 LEs                ; 50 LEs                 ; Yes        ; |lab1|button_press:sub_ctrl|cnt[14] ;
+; 4:1                ; 29 bits   ; 58 LEs        ; 58 LEs               ; 0 LEs                  ; Yes        ; |lab1|range:r|collatz:c1|dout[20]   ;
+; 4:1                ; 15 bits   ; 30 LEs        ; 0 LEs                ; 30 LEs                 ; Yes        ; |lab1|range:r|din[3]                ;
+; 4:1                ; 8 bits    ; 16 LEs        ; 0 LEs                ; 16 LEs                 ; Yes        ; |lab1|start_index[4]                ;
+; 5:1                ; 22 bits   ; 66 LEs        ; 0 LEs                ; 66 LEs                 ; Yes        ; |lab1|start[13]                     ;
+; 5:1                ; 10 bits   ; 30 LEs        ; 0 LEs                ; 30 LEs                 ; Yes        ; |lab1|start[6]                      ;
++--------------------+-----------+---------------+----------------------+------------------------+------------+-------------------------------------+
 
 
 +------------------------------------------------------------------------------------+
@@ -330,6 +337,28 @@ Note: For table entries with two numbers listed, the numbers in parentheses indi
 +---------------------------------+--------------------+------+----------------------+
 ; OPTIMIZE_POWER_DURING_SYNTHESIS ; NORMAL_COMPILATION ; -    ; -                    ;
 +---------------------------------+--------------------+------+----------------------+
+
+
++--------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: button_press:add_ctrl ;
++----------------+----------+----------------------------------------+
+; Parameter Name ; Value    ; Type                                   ;
++----------------+----------+----------------------------------------+
+; HOLD           ; 25000000 ; Signed Integer                         ;
+; REPEAT         ; 5000000  ; Signed Integer                         ;
++----------------+----------+----------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
+
+
++--------------------------------------------------------------------+
+; Parameter Settings for User Entity Instance: button_press:sub_ctrl ;
++----------------+----------+----------------------------------------+
+; Parameter Name ; Value    ; Type                                   ;
++----------------+----------+----------------------------------------+
+; HOLD           ; 25000000 ; Signed Integer                         ;
+; REPEAT         ; 5000000  ; Signed Integer                         ;
++----------------+----------+----------------------------------------+
+Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
 
 +------------------------------------------------------+
@@ -456,30 +485,32 @@ Note: In order to hide this table in the UI and the text report file, please set
 +-----------------------+-----------------------------+
 ; Type                  ; Count                       ;
 +-----------------------+-----------------------------+
-; arriav_ff             ; 228                         ;
-;     ENA SCLR          ; 73                          ;
+; arriav_ff             ; 254                         ;
+;     ENA SCLR          ; 91                          ;
+;     ENA SCLR SLD      ; 10                          ;
 ;     ENA SLD           ; 61                          ;
-;     SCLR              ; 74                          ;
+;     SCLR              ; 66                          ;
 ;     SLD               ; 6                           ;
-;     plain             ; 14                          ;
-; arriav_lcell_comb     ; 452                         ;
-;     arith             ; 253                         ;
+;     plain             ; 20                          ;
+; arriav_lcell_comb     ; 427                         ;
+;     arith             ; 241                         ;
 ;         0 data inputs ; 1                           ;
-;         1 data inputs ; 205                         ;
+;         1 data inputs ; 162                         ;
 ;         2 data inputs ; 40                          ;
-;         5 data inputs ; 7                           ;
-;     normal            ; 199                         ;
+;         4 data inputs ; 2                           ;
+;         5 data inputs ; 36                          ;
+;     normal            ; 186                         ;
 ;         1 data inputs ; 9                           ;
-;         2 data inputs ; 7                           ;
-;         3 data inputs ; 51                          ;
-;         4 data inputs ; 48                          ;
-;         5 data inputs ; 37                          ;
-;         6 data inputs ; 47                          ;
+;         2 data inputs ; 17                          ;
+;         3 data inputs ; 55                          ;
+;         4 data inputs ; 52                          ;
+;         5 data inputs ; 22                          ;
+;         6 data inputs ; 31                          ;
 ; boundary_port         ; 67                          ;
 ; stratixv_ram_block    ; 12                          ;
 ;                       ;                             ;
-; Max LUT depth         ; 5.10                        ;
-; Average LUT depth     ; 3.07                        ;
+; Max LUT depth         ; 6.00                        ;
+; Average LUT depth     ; 2.97                        ;
 +-----------------------+-----------------------------+
 
 
@@ -498,7 +529,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
-    Info: Processing started: Wed Feb 11 23:03:39 2026
+    Info: Processing started: Fri Feb 13 17:54:29 2026
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off lab1 -c lab1
 Info (20032): Parallel compilation is enabled and will use up to 4 processors
 Info (12021): Found 1 design units, including 1 entities, in source file hex7seg.sv
@@ -507,20 +538,24 @@ Info (12021): Found 1 design units, including 1 entities, in source file collatz
     Info (12023): Found entity 1: collatz File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/collatz.sv Line: 1
 Info (12021): Found 1 design units, including 1 entities, in source file range.sv
     Info (12023): Found entity 1: range File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv Line: 1
-Info (12021): Found 2 design units, including 2 entities, in source file lab1.sv
-    Info (12023): Found entity 1: debouncer File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 12
-    Info (12023): Found entity 2: lab1 File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 37
+Info (12021): Found 1 design units, including 1 entities, in source file lab1.sv
+    Info (12023): Found entity 1: lab1 File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 8
 Info (12127): Elaborating entity "lab1" for the top level hierarchy
-Warning (10230): Verilog HDL assignment warning at lab1.sv(104): truncated value with size 32 to match size of target (22) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 104
-Warning (10230): Verilog HDL assignment warning at lab1.sv(109): truncated value with size 32 to match size of target (8) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 109
-Warning (10230): Verilog HDL assignment warning at lab1.sv(114): truncated value with size 32 to match size of target (8) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 114
-Info (12128): Elaborating entity "debouncer" for hierarchy "debouncer:add_debounce" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 64
-Warning (10230): Verilog HDL assignment warning at lab1.sv(31): truncated value with size 32 to match size of target (16) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 31
-Info (12128): Elaborating entity "range" for hierarchy "range:r" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 70
+Warning (10230): Verilog HDL assignment warning at lab1.sv(83): truncated value with size 32 to match size of target (8) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 83
+Warning (10230): Verilog HDL assignment warning at lab1.sv(87): truncated value with size 32 to match size of target (8) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 87
+Warning (12125): Using design file debouncer.sv, which is not specified as a design file for the current project, but contains definitions for 1 design units and 1 entities in project
+    Info (12023): Found entity 1: debouncer File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/debouncer.sv Line: 5
+Info (12128): Elaborating entity "debouncer" for hierarchy "debouncer:add_debounce" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 31
+Warning (10230): Verilog HDL assignment warning at debouncer.sv(24): truncated value with size 32 to match size of target (14) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/debouncer.sv Line: 24
+Warning (12125): Using design file button_press.sv, which is not specified as a design file for the current project, but contains definitions for 1 design units and 1 entities in project
+    Info (12023): Found entity 1: button_press File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/button_press.sv Line: 4
+Info (12128): Elaborating entity "button_press" for hierarchy "button_press:add_ctrl" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 38
+Warning (10230): Verilog HDL assignment warning at button_press.sv(27): truncated value with size 32 to match size of target (25) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/button_press.sv Line: 27
+Info (12128): Elaborating entity "range" for hierarchy "range:r" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 48
 Warning (10230): Verilog HDL assignment warning at range.sv(39): truncated value with size 32 to match size of target (8) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv Line: 39
 Warning (10230): Verilog HDL assignment warning at range.sv(50): truncated value with size 32 to match size of target (16) File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv Line: 50
 Info (12128): Elaborating entity "collatz" for hierarchy "range:r|collatz:c1" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/range.sv Line: 22
-Info (12128): Elaborating entity "hex7seg" for hierarchy "hex7seg:seg5" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 80
+Info (12128): Elaborating entity "hex7seg" for hierarchy "hex7seg:seg5" File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/lab1.sv Line: 56
 Info (19000): Inferred 1 megafunctions from design logic
     Info (276029): Inferred altsyncram megafunction from the following design logic: "range:r|mem_rtl_0" 
         Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
@@ -559,24 +594,17 @@ Info (12021): Found 1 design units, including 1 entities, in source file db/alts
     Info (12023): Found entity 1: altsyncram_g6n1 File: /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/db/altsyncram_g6n1.tdf Line: 28
 Info (286030): Timing-Driven Synthesis is running
 Info (17049): 4 registers lost all their fanouts during netlist optimizations.
-Info (144001): Generated suppressed messages file /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/output_files/lab1.map.smsg
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
-Info (21057): Implemented 530 device resources after synthesis - the final resource count might be different
+Info (21057): Implemented 508 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 15 input pins
     Info (21059): Implemented 52 output pins
-    Info (21061): Implemented 451 logic cells
+    Info (21061): Implemented 429 logic cells
     Info (21064): Implemented 12 RAM segments
-Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 6 warnings
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 8 warnings
     Info: Peak virtual memory: 813 megabytes
-    Info: Processing ended: Wed Feb 11 23:03:50 2026
-    Info: Elapsed time: 00:00:11
-    Info: Total CPU time (on all processors): 00:00:11
-
-
-+------------------------------------------+
-; Analysis & Synthesis Suppressed Messages ;
-+------------------------------------------+
-The suppressed messages can be found in /homes/user/stud/spring25/sr4102/Desktop/Embedded_Systems/Embedded_Systems/lab1/output_files/lab1.map.smsg.
+    Info: Processing ended: Fri Feb 13 17:54:44 2026
+    Info: Elapsed time: 00:00:15
+    Info: Total CPU time (on all processors): 00:00:12
 
 
