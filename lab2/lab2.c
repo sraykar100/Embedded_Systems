@@ -1,8 +1,8 @@
 /*
  *
  * CSEE 4840 Lab 2 for 2019
- *
- * Name/UNI: Please Changeto Yourname (pcy2301)
+ * Shiyao Marcus Lam (sml2286)
+ * Siddarth Raykar (sr4102)
  */
 #include "fbputchar.h"
 #include <stdio.h>
