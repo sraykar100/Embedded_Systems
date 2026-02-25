@@ -55,13 +55,25 @@ int main()
     exit(1);
   }
 
-  /* Draw rows of asterisks across the top and bottom of the screen */
-  for (col = 0 ; col < 64 ; col++) {
-    fbputchar('*', 0, col);
-    fbputchar('*', 23, col);
-  }
+  // /* Draw rows of asterisks across the top and bottom of the screen */
+  // for (col = 0 ; col < 64 ; col++) {
+  //   fbputchar('*', 0, col);
+  //   fbputchar('*', 23, col);
+  // }
 
-  fbputs("Hello CSEE 4840 World!", 4, 10);
+  // fbputs("Hello CSEE 4840 World!", 4, 10);
+
+  // -- NEW --
+  fb_init_screen();
+  // 3. Test: put some text in different areas to verify layout
+  fbputs("=== MESSAGE AREA ===", 0, 0);      // Top of message area
+  fbputs("Messages appear here", 2, 0);       // Message area
+  fbputs("Last message row", 20, 0);          // Bottom of message area
+  
+  fbputs("Type here: ", 22, 0);               // Input area row 1
+  fbputs("(input line 2)", 23, 0); 
+
+  // -- END NEW --
 
   /* Open the keyboard */
   if ( (keyboard = openkeyboard(&endpoint_address)) == NULL ) {
