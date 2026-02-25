@@ -11,4 +11,7 @@ extern int fbopen(void);
 extern void fbputchar(char, int, int);
 extern void fbputs(const char *, int, int);
 
+extern void fb_init_screen(void);
+extern void fb_draw_line_divider(char, int);
+
 #endif

@@ -23,6 +23,16 @@
 
 #define BUFFER_SIZE 128
 
+#define MSG_AREA_TOP 0       /* First row for messages */
+#define MSG_AREA_BOTTOM 20   /* Last row for messages */
+#define MSG_AREA_COLS 64     /* Characters per row */
+#define INPUT_AREA_TOP 22    /* First row for user input */
+#define DIVIDER_ROW 21       /* Row for the divider line */
+
+/* Track row and col for the next character to go on */
+int current_msg_row = MSG_AREA_TOP;
+int current_msg_col = 0;
+
 /*
  * References:
  *
@@ -138,9 +148,75 @@ void *network_thread_f(void *ignored)
   while ( (n = read(sockfd, &recvBuf, BUFFER_SIZE - 1)) > 0 ) {
     recvBuf[n] = '\0';
     printf("%s", recvBuf);
-    fbputs(recvBuf, 8, 0);
+    // fbputs(recvBuf, 8, 0);
+    display_message(recvBuf, 255, 255, 255);
   }
 
   return NULL;
 }
 
+/*
+When messages fill up the display area, clear the message area (just rows 0-20) and reset cursor position to the top.
+*/
+void clear_message_area(void)
+{
+    int row, col;
+    
+    for (row = MSG_AREA_TOP; row <= MSG_AREA_BOTTOM; row++) {
+        for (col = 0; col < MSG_AREA_COLS; col++) {
+            fbputchar(' ', row, col);
+        }
+    }
+    
+    /* Reset position to top-left of message area */
+    current_msg_row = MSG_AREA_TOP;
+    current_msg_col = 0;
+}
+
+
+/*
+ * Display a message in the message area with the given color.
+ * Handles wrapping and overflow
+ */
+void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b)
+{
+    const char *p = msg;
+    char c;
+    
+    while ((c = *p++) != '\0') {
+        /* Handle newline: move to start of next row */
+        if (c == '\n') {
+            current_msg_col = 0;
+            current_msg_row++;
+
+            /* Check if we've gone past the message area */
+            if (current_msg_row > MSG_AREA_BOTTOM) {
+                clear_message_area();
+            }
+            continue;
+        }
+
+        /* Check if we need to wrap to next line */
+        if (current_msg_col >= MSG_AREA_COLS) {
+            current_msg_col = 0;
+            current_msg_row++;
+
+            /* Check if we've gone past the message area */
+            if (current_msg_row > MSG_AREA_BOTTOM) {
+                clear_message_area();
+            }
+        }
+
+        /* Display the character */
+        fbputchar(c, current_msg_row, current_msg_col);
+        current_msg_col++;
+    }
+
+    /* After message, move to next line for the next message */
+    current_msg_col = 0;
+    current_msg_row++;
+
+    if (current_msg_row > MSG_AREA_BOTTOM) {
+        clear_message_area();
+    }
+}
