@@ -56,7 +56,36 @@ int fbopen()
 }
 
 /*
+ * Clear the framebuffer by setting all pixels to black through iteration. 
+ */
+void fbclear(void)
+{
+    int x, y;
+    unsigned char *pixel;
+    
+    for (y = 0; y < fb_vinfo.yres; y++) {
+        // Calculate address of the start of the current row.
+        unsigned char *row = framebuffer 
+            + (y + fb_vinfo.yoffset) * fb_finfo.line_length
+            + fb_vinfo.xoffset * (BITS_PER_PIXEL / 8);
+        
+        pixel = row;
+        for (x = 0; x < fb_vinfo.xres; x++) {
+            pixel[0] = 0;  // Red
+            pixel[1] = 0;  // Green
+            pixel[2] = 0;  // Blue
+            pixel[3] = 0;  // Unused
+            pixel += 4;    // Move to next pixel
+        }
+    }
+}
+
+/*
  * Draw the given character at the given row/column.
+ * Essentially, given the row and col of the character, the formula to find its address in the framebuffer is: 
+ * address = framebuffer_base 
+        + (y + yoffset) * line_length 
+        + (x + xoffset) * bytes_per_pixel
  * fbopen() must be called first.
  */
 void fbputchar(char c, int row, int col)
