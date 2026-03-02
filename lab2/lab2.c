@@ -444,19 +444,12 @@ void handle_keypress(uint8_t keycode, uint8_t modifiers)
         return;
     }
 
-    /* Handle Enter - for now just print, later will send to server */
-    if (keycode == HID_ENTER) {
-        printf("ENTER pressed. Buffer contents: \"%s\"\n", input_buffer);
-        input_buf_clear();
-        return;
-    }
-
     /*
-     * Handle Escape as "send message":
+     * Handle Enter as "send message":
      * 1) transmit current input buffer to server
      * 2) clear local input only if send succeeds
      */
-    if (keycode == HID_ESCAPE) {
+    if (keycode == HID_ENTER) {
         if (input_length > 0) {
             if (send_input_buffer_to_server() == 0) {
                 input_buf_clear();
@@ -464,6 +457,11 @@ void handle_keypress(uint8_t keycode, uint8_t modifiers)
                 fprintf(stderr, "Failed to send message; buffer kept for retry.\n");
             }
         }
+        return;
+    }
+
+    /* Handle Escape: do nothing */
+    if (keycode == HID_ESCAPE) {
         return;
     }
 
