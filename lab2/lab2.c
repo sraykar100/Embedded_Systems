@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <time.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
 
@@ -79,6 +80,12 @@ static int input_length = 0;
 
 /* Previous keyboard packet for edge detection */
 static struct usb_keyboard_packet previous_packet = {0};
+static uint8_t repeat_keycode = 0;
+static uint8_t repeat_modifiers = 0;
+static uint64_t next_repeat_ms = 0;
+
+#define KEY_REPEAT_INITIAL_DELAY_MS 800
+#define KEY_REPEAT_INTERVAL_MS 80
 
 /*
  * References:
@@ -109,6 +116,8 @@ void input_buf_delete_char(void);
 void input_buf_clear(void);
 void input_buf_debug_print(void);
 int is_new_keypress(uint8_t keycode);
+int is_repeatable_key(uint8_t keycode);
+uint64_t monotonic_time_ms(void);
 
 int main()
 {
@@ -194,9 +203,30 @@ int main()
         }
       }
 
+      /* Held-key repeat behavior (after delay, at fixed rate) */
+      uint8_t held_keycode = 0;
+      for (int i = 0; i < 6; i++) {
+        if (packet.keycode[i] != 0) {
+          held_keycode = packet.keycode[i];
+          break;
+        }
+      }
+
+      uint64_t now_ms = monotonic_time_ms();
+      if (held_keycode == 0) {
+        repeat_keycode = 0;
+      } else if (held_keycode != repeat_keycode || packet.modifiers != repeat_modifiers) {
+        repeat_keycode = held_keycode;
+        repeat_modifiers = packet.modifiers;
+        next_repeat_ms = now_ms + KEY_REPEAT_INITIAL_DELAY_MS;
+      } else if (is_repeatable_key(held_keycode) && now_ms >= next_repeat_ms) {
+        handle_keypress(held_keycode, packet.modifiers);
+        next_repeat_ms = now_ms + KEY_REPEAT_INTERVAL_MS;
+      }
+
       /* Check for ESC to exit */
       if (packet.keycode[0] == HID_ESCAPE) {
-        break;
+	break;
       }
 
       /* Save current packet as previous for next iteration */
@@ -440,4 +470,22 @@ int is_new_keypress(uint8_t keycode)
     
     // New keypress 
     return 1;  
+}
+
+int is_repeatable_key(uint8_t keycode)
+{
+    switch (keycode) {
+        case HID_ESCAPE:
+        case HID_CAPSLOCK:
+            return 0;
+        default:
+            return 1;
+    }
+}
+
+uint64_t monotonic_time_ms(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ((uint64_t)ts.tv_sec * 1000ULL) + ((uint64_t)ts.tv_nsec / 1000000ULL);
 }
