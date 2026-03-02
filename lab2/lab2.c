@@ -153,7 +153,6 @@ int main()
   fbputs("Last message row", 20, 0);          // Bottom of message area
   
   fbputs("Type here: ", 22, 0);               // Input area row 1
-  fbputs("(input line 2)", 23, 0); 
 
   // -- END NEW --
 
@@ -397,6 +396,7 @@ void input_buf_add_char(char c)
         input_buffer[input_length++] = c;
         input_buffer[input_length] = '\0';
         input_buf_debug_print();
+        display_user_input();
     }
 }
 
@@ -407,6 +407,7 @@ void input_buf_delete_char(void)
         input_length--;
         input_buffer[input_length] = '\0';
         input_buf_debug_print();
+        display_user_input();
     }
 }
 
@@ -416,6 +417,7 @@ void input_buf_clear(void)
     input_length = 0;
     input_buffer[0] = '\0';
     input_buf_debug_print();
+    display_user_input();
 }
 
 void input_buf_debug_print(void)
