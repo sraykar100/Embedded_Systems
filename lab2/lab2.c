@@ -76,9 +76,14 @@ uint8_t endpoint_address;
 pthread_t network_thread;
 void *network_thread_f(void *);
 
+/* Function prototypes */
+void clear_message_area(void);
+void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b);
+char keycode_to_ascii(uint8_t keycode, uint8_t modifiers);
+
 int main()
 {
-  int err, col;
+  int err;
 
   struct sockaddr_in serv_addr;
 
