@@ -74,7 +74,7 @@ https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 static int is_caps_on = 0;
 
 /* Input buffer for user typing */
-#define INPUT_BUFFER_SIZE 128
+#define INPUT_BUFFER_SIZE 256
 static char input_buffer[INPUT_BUFFER_SIZE];
 static int input_length = 0;
 
@@ -120,6 +120,7 @@ int is_new_keypress(uint8_t keycode);
 int is_repeatable_key(uint8_t keycode);
 uint64_t monotonic_time_ms(void);
 int send_input_buffer_to_server(void);
+void display_user_input(void);
 
 int main()
 {
@@ -538,4 +539,27 @@ int send_input_buffer_to_server(void)
     }
 
     return 0;
+}
+
+void display_user_input(void)
+{
+  int row = INPUT_AREA_TOP + 1;  /* Just use the bottom row its easiest*/
+  int col = 0;
+  
+  /* Clear the row and redraw the whole thing */
+  for (int c = 0; c < MSG_AREA_COLS; c++) {
+      fbputchar(' ', row, c);
+  }
+  
+  /* Calculate the start of the "window" to display for long inputs */
+  int start = 0;
+  if (input_length > MSG_AREA_COLS) {
+      start = input_length - MSG_AREA_COLS;
+  }
+  
+  /* Draw visible portion of buffer */
+  for (int i = start; i < input_length; i++) {
+      fbputchar(input_buffer[i], row, col);
+      col++;
+  }
 }
