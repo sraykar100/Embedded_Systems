@@ -77,6 +77,9 @@ static int is_caps_on = 0;
 static char input_buffer[INPUT_BUFFER_SIZE];
 static int input_length = 0;
 
+/* Previous keyboard packet for edge detection */
+static struct usb_keyboard_packet previous_packet = {0};
+
 /*
  * References:
  *
@@ -105,6 +108,7 @@ void input_buf_add_char(char c);
 void input_buf_delete_char(void);
 void input_buf_clear(void);
 void input_buf_debug_print(void);
+int is_new_keypress(uint8_t keycode);
 
 int main()
 {
@@ -182,16 +186,21 @@ int main()
       printf("%s\n", keystate);
       fbputs(keystate, 6, 0);
 
-      /* Process each keycode slot */
+      /* Process each keycode slot - only handle NEW key presses */
       for (int i = 0; i < 6; i++) {
         uint8_t keycode = packet.keycode[i];
-        if (keycode != 0) {
+        if (keycode != 0 && is_new_keypress(keycode)) {
           handle_keypress(keycode, packet.modifiers);
         }
-        if (packet.keycode[0] == HID_ESCAPE) {
-          break; // quit client if ESC
-        }
       }
+
+      /* Check for ESC to exit */
+      if (packet.keycode[0] == HID_ESCAPE) {
+        break;
+      }
+
+      /* Save current packet as previous for next iteration */
+      previous_packet = packet;
     }
   }
 
@@ -411,4 +420,24 @@ void handle_keypress(uint8_t keycode, uint8_t modifiers)
     if (ascii != 0 && ascii != '\n' && ascii != '\t') {
         input_buf_add_char(ascii);
     }
+}
+
+/*
+ * Essentially detect the rising edge of a keypress by comparing the current packet to the previous packet.
+ */
+int is_new_keypress(uint8_t keycode)
+{
+    if (keycode == 0) { // no key pressed / release 
+        return 0;
+    }
+    
+    /* Check if this keycode was in any slot of the previous packet */
+    for (int i = 0; i < 6; i++) {
+        if (previous_packet.keycode[i] == keycode) {
+            return 0;  
+        }
+    }
+    
+    // New keypress 
+    return 1;  
 }
