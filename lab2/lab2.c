@@ -59,6 +59,16 @@ static const char keycode_to_ascii_shifted[128] = {
   // rest are 0
 };
 
+/* 
+HIDs for special keys 
+https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+*/
+#define HID_ENTER     0x28
+#define HID_ESCAPE    0x29
+#define HID_CAPSLOCK  0x39
+#define HID_BACKSPACE 0x2A
+#define HID_TAB       0x2B
+
 /*
  * References:
  *
@@ -274,7 +284,10 @@ char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
     }
     
     /* either Shift key is pressed, then look up in appropriate table */
-    int shift_pressed = (modifiers & (USB_LSHIFT | USB_RSHIFT)) != 0;
+    int shift_pressed = 0;
+    if ((modifiers & USB_LSHIFT) || (modifiers & USB_RSHIFT)) {
+        shift_pressed = 1;
+    }
     
     if (shift_pressed) {
         return keycode_to_ascii_shifted[keycode];
