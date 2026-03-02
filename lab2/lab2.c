@@ -84,7 +84,7 @@ static uint8_t repeat_keycode = 0;
 static uint8_t repeat_modifiers = 0;
 static uint64_t next_repeat_ms = 0;
 
-#define KEY_REPEAT_INITIAL_DELAY_MS 800
+#define KEY_REPEAT_INITIAL_DELAY_MS 500
 #define KEY_REPEAT_INTERVAL_MS 80
 #define USB_POLL_TIMEOUT_MS 10
 
