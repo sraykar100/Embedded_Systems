@@ -70,6 +70,8 @@ https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 #define HID_CAPSLOCK  0x39
 #define HID_BACKSPACE 0x2A
 #define HID_TAB       0x2B
+#define HID_RIGHT     0x4F
+#define HID_LEFT      0x50
 
 static int is_caps_on = 0;
 
@@ -77,6 +79,7 @@ static int is_caps_on = 0;
 #define INPUT_BUFFER_SIZE 256
 static char input_buffer[INPUT_BUFFER_SIZE];
 static int input_length = 0;
+static int cursor_position = 0;  /* Cursor position within input buffer */
 
 /* Previous keyboard packet for edge detection */
 static struct usb_keyboard_packet previous_packet = {0};
@@ -116,6 +119,8 @@ void input_buf_add_char(char c);
 void input_buf_delete_char(void);
 void input_buf_clear(void);
 void input_buf_debug_print(void);
+void cursor_move_left(void);
+void cursor_move_right(void);
 int is_new_keypress(uint8_t keycode);
 int is_repeatable_key(uint8_t keycode);
 uint64_t monotonic_time_ms(void);
@@ -147,11 +152,6 @@ int main()
 
   // -- NEW --
   fb_init_screen();
-  // 3. Test: put some text in different areas to verify layout
-  fbputs("=== MESSAGE AREA ===", 0, 0);      // Top of message area
-  fbputs("Messages appear here", 2, 0);       // Message area
-  fbputs("Last message row", 20, 0);          // Bottom of message area
-  
   fbputs("Type here: ", 22, 0);               // Input area row 1
 
   // -- END NEW --
@@ -388,22 +388,33 @@ int is_special_key(uint8_t keycode)
     }
 }
 
-/* Add a character to the input buffer */
+/* Insert char at cursor */
 void input_buf_add_char(char c)
 {
     if (input_length < INPUT_BUFFER_SIZE - 1) {
-        input_buffer[input_length++] = c;
+        /* Shift right to make room */
+        for (int i = input_length; i > cursor_position; i--) {
+            input_buffer[i] = input_buffer[i - 1];
+        }
+        input_buffer[cursor_position] = c;
+        input_length++;
+        cursor_position++;
         input_buffer[input_length] = '\0';
         input_buf_debug_print();
         display_user_input();
     }
 }
 
-/* Delete the last character from the input buffer (backspace) */
+/* Backspace: delete char before cursor */
 void input_buf_delete_char(void)
 {
-    if (input_length > 0) {
+    if (cursor_position > 0) {
+        /* Shift left to fill gap */
+        for (int i = cursor_position - 1; i < input_length - 1; i++) {
+            input_buffer[i] = input_buffer[i + 1];
+        }
         input_length--;
+        cursor_position--;
         input_buffer[input_length] = '\0';
         input_buf_debug_print();
         display_user_input();
@@ -414,6 +425,7 @@ void input_buf_delete_char(void)
 void input_buf_clear(void)
 {
     input_length = 0;
+    cursor_position = 0;
     input_buffer[0] = '\0';
     input_buf_debug_print();
     display_user_input();
@@ -421,7 +433,23 @@ void input_buf_clear(void)
 
 void input_buf_debug_print(void)
 {
-    printf("Input[%d]: \"%s\"\n", input_length, input_buffer);
+    printf("Input[%d] cursor@%d: \"%s\"\n", input_length, cursor_position, input_buffer);
+}
+
+void cursor_move_left(void)
+{
+    if (cursor_position > 0) {
+        cursor_position--;
+        display_user_input();
+    }
+}
+
+void cursor_move_right(void)
+{
+    if (cursor_position < input_length) {
+        cursor_position++;
+        display_user_input();
+    }
 }
 
 void handle_keypress(uint8_t keycode, uint8_t modifiers)
@@ -464,6 +492,16 @@ void handle_keypress(uint8_t keycode, uint8_t modifiers)
 
     /* Handle Escape: do nothing */
     if (keycode == HID_ESCAPE) {
+        return;
+    }
+
+    /* Arrow keys move cursor */
+    if (keycode == HID_LEFT) {
+        cursor_move_left();
+        return;
+    }
+    if (keycode == HID_RIGHT) {
+        cursor_move_right();
         return;
     }
 
@@ -535,23 +573,30 @@ int send_input_buffer_to_server(void)
 
 void display_user_input(void)
 {
-  int row = INPUT_AREA_TOP + 1;  /* Just use the bottom row its easiest*/
-  int col = 0;
+  int row = INPUT_AREA_TOP + 1;
   
-  /* Clear the row and redraw the whole thing */
+  /* Clear row */
   for (int c = 0; c < MSG_AREA_COLS; c++) {
       fbputchar(' ', row, c);
   }
   
-  /* Calculate the start of the "window" to display for long inputs */
+  /* Keep cursor visible by sliding window */
+  int visible_width = MSG_AREA_COLS - 1;
   int start = 0;
-  if (input_length > MSG_AREA_COLS) {
-      start = input_length - MSG_AREA_COLS;
+  if (cursor_position > visible_width) {
+      start = cursor_position - visible_width;
   }
   
-  /* Draw visible portion of buffer */
-  for (int i = start; i < input_length; i++) {
+  /* Draw text */
+  int col = 0;
+  for (int i = start; i < input_length && col < visible_width; i++) {
       fbputchar(input_buffer[i], row, col);
       col++;
+  }
+  
+  /* Draw cursor */
+  int cursor_display_col = cursor_position - start;
+  if (cursor_display_col >= 0 && cursor_display_col < MSG_AREA_COLS) {
+      fbputchar('|', row, cursor_display_col);
   }
 }
