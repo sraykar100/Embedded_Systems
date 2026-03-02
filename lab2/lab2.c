@@ -86,6 +86,7 @@ static uint64_t next_repeat_ms = 0;
 
 #define KEY_REPEAT_INITIAL_DELAY_MS 800
 #define KEY_REPEAT_INTERVAL_MS 80
+#define USB_POLL_TIMEOUT_MS 10
 
 /*
  * References:
@@ -186,10 +187,10 @@ int main()
 
   /* Look for and handle keypresses */
   for (;;) {
-    libusb_interrupt_transfer(keyboard, endpoint_address,
+    int transfer_rc = libusb_interrupt_transfer(keyboard, endpoint_address,
 			      (unsigned char *) &packet, sizeof(packet),
-			      &transferred, 0);
-    if (transferred == sizeof(packet)) {
+			      &transferred, USB_POLL_TIMEOUT_MS);
+    if (transfer_rc == 0 && transferred == sizeof(packet)) {
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	      packet.keycode[1]);
       printf("%s\n", keystate);
@@ -231,6 +232,20 @@ int main()
 
       /* Save current packet as previous for next iteration */
       previous_packet = packet;
+    } else if (transfer_rc != LIBUSB_ERROR_TIMEOUT) {
+      fprintf(stderr, "Keyboard read error: %d\n", transfer_rc);
+    }
+
+    /*
+     * Run key repeat even without fresh keyboard packets.
+     * Some devices report only state changes.
+     */
+    if (repeat_keycode != 0 && is_repeatable_key(repeat_keycode)) {
+      uint64_t now_ms = monotonic_time_ms();
+      if (now_ms >= next_repeat_ms) {
+        handle_keypress(repeat_keycode, repeat_modifiers);
+        next_repeat_ms = now_ms + KEY_REPEAT_INTERVAL_MS;
+      }
     }
   }
 
