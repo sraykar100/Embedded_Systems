@@ -195,7 +195,6 @@ int main()
       sprintf(keystate, "%02x %02x %02x", packet.modifiers, packet.keycode[0],
 	      packet.keycode[1]);
       printf("%s\n", keystate);
-      fbputs(keystate, 6, 0);
 
       /* Process each keycode slot - only handle NEW key presses */
       for (int i = 0; i < 6; i++) {
