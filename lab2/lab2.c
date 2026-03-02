@@ -119,6 +119,7 @@ void input_buf_debug_print(void);
 int is_new_keypress(uint8_t keycode);
 int is_repeatable_key(uint8_t keycode);
 uint64_t monotonic_time_ms(void);
+int send_input_buffer_to_server(void);
 
 int main()
 {
@@ -223,11 +224,6 @@ int main()
       } else if (is_repeatable_key(held_keycode) && now_ms >= next_repeat_ms) {
         handle_keypress(held_keycode, packet.modifiers);
         next_repeat_ms = now_ms + KEY_REPEAT_INTERVAL_MS;
-      }
-
-      /* Check for ESC to exit */
-      if (packet.keycode[0] == HID_ESCAPE) {
-	break;
       }
 
       /* Save current packet as previous for next iteration */
@@ -455,8 +451,19 @@ void handle_keypress(uint8_t keycode, uint8_t modifiers)
         return;
     }
 
-    /* Handle Escape */
+    /*
+     * Handle Escape as "send message":
+     * 1) transmit current input buffer to server
+     * 2) clear local input only if send succeeds
+     */
     if (keycode == HID_ESCAPE) {
+        if (input_length > 0) {
+            if (send_input_buffer_to_server() == 0) {
+                input_buf_clear();
+            } else {
+                fprintf(stderr, "Failed to send message; buffer kept for retry.\n");
+            }
+        }
         return;
     }
 
@@ -503,4 +510,32 @@ uint64_t monotonic_time_ms(void)
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ((uint64_t)ts.tv_sec * 1000ULL) + ((uint64_t)ts.tv_nsec / 1000000ULL);
+}
+
+/*
+ * Send the full input buffer to the chat server.
+ * Uses a loop to handle partial writes, then sends a trailing newline.
+ * Returns 0 on success and -1 on error.
+ */
+int send_input_buffer_to_server(void)
+{
+    int sent = 0;
+
+    while (sent < input_length) {
+        ssize_t n = write(sockfd, input_buffer + sent, input_length - sent);
+        if (n <= 0) {
+            return -1;
+        }
+        sent += (int)n;
+    }
+
+    /*
+     * Server messages are line-oriented; send newline so the message
+     * is treated as a complete chat line.
+     */
+    if (write(sockfd, "\n", 1) != 1) {
+        return -1;
+    }
+
+    return 0;
 }
