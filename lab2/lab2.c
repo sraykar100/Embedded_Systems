@@ -33,6 +33,32 @@
 int current_msg_row = MSG_AREA_TOP;
 int current_msg_col = 0;
 
+/* Lookup table: Unshifted characters */
+static const char keycode_to_ascii_unshifted[128] = {
+  0, 0, 0, 0, 'a', 'b', 'c', 'd',      // 0x00-0x07
+  'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',  // 0x08-0x0F
+  'm', 'n', 'o', 'p', 'q', 'r', 's', 't',  // 0x10-0x17
+  'u', 'v', 'w', 'x', 'y', 'z', '1', '2',  // 0x18-0x1F
+  '3', '4', '5', '6', '7', '8', '9', '0',  // 0x20-0x27
+  '\n', 0, 0, '\t', ' ', '-', '=', '[',    // 0x28-0x2F (Enter, Esc, Backspace, Tab, Space, -, =, [)
+  ']', '\\', 0, ';', '\'', '`', ',', '.',  // 0x30-0x37
+  '/', 0, 0, 0, 0, 0, 0, 0,                // 0x38-0x3F (/, CapsLock, F1-F5)
+  // rest are 0 
+};
+
+/* Lookup table: Shifted characters */
+static const char keycode_to_ascii_shifted[128] = {
+  0, 0, 0, 0, 'A', 'B', 'C', 'D',         // 0x00-0x07
+  'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', // 0x08-0x0F
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', // 0x10-0x17
+  'U', 'V', 'W', 'X', 'Y', 'Z', '!', '@', // 0x18-0x1F
+  '#', '$', '%', '^', '&', '*', '(', ')', // 0x20-0x27
+  '\n', 0, 0, '\t', ' ', '_', '+', '{',   // 0x28-0x2F
+  '}', '|', 0, ':', '"', '~', '<', '>',   // 0x30-0x37
+  '?', 0, 0, 0, 0, 0, 0, 0,               // 0x38-0x3F
+  // rest are 0
+};
+
 /*
  * References:
  *
@@ -125,6 +151,13 @@ int main()
 	      packet.keycode[1]);
       printf("%s\n", keystate);
       fbputs(keystate, 6, 0);
+
+      /* TEST Convert keycode to ASCII and print */
+      char ascii = keycode_to_ascii(packet.keycode[0], packet.modifiers);
+      if (ascii != 0) {
+        printf("ASCII: '%c' (0x%02x)\n", ascii, (unsigned char)ascii);
+      }
+
       if (packet.keycode[0] == 0x29) { /* ESC pressed? */
 	break;
       }
@@ -220,5 +253,27 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
         if (current_msg_row > MSG_AREA_BOTTOM) {
             clear_message_area();
         }
+    }
+}
+
+char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
+{
+    /* no key pressed */
+    if (keycode == 0) {
+        return 0;
+    }
+    
+    /* keycode is out of range */
+    if (keycode >= 128) {
+        return 0;  
+    }
+    
+    /* either Shift key is pressed, then look up in appropriate table */
+    int shift_pressed = (modifiers & (USB_LSHIFT | USB_RSHIFT)) != 0;
+    
+    if (shift_pressed) {
+        return keycode_to_ascii_shifted[keycode];
+    } else {
+        return keycode_to_ascii_unshifted[keycode];
     }
 }
