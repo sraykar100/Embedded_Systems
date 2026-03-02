@@ -69,6 +69,8 @@ https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 #define HID_BACKSPACE 0x2A
 #define HID_TAB       0x2B
 
+static int is_caps_on = 0;
+
 /*
  * References:
  *
@@ -272,6 +274,12 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
     }
 }
 
+void handle_caps(uint8_t keycode){
+  if (keycode == HID_CAPSLOCK){
+      is_caps_on = !is_caps_on;
+    }
+}
+
 char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
 {
     /* no key pressed */
@@ -289,8 +297,15 @@ char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
     if ((modifiers & USB_LSHIFT) || (modifiers & USB_RSHIFT)) {
         shift_pressed = 1;
     }
-    
-    if (shift_pressed) {
+    int layer_toggle = 0;
+    if (keycode >= 0x04 && keycode <= 0x1d){
+      layer_toggle = shift_pressed ^ is_caps_on;
+    }
+    else{
+      layer_toggle = shift_pressed;
+    }
+
+    if (layer_toggle) {
         return keycode_to_ascii_shifted[keycode];
     } else {
         return keycode_to_ascii_unshifted[keycode];
