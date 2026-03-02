@@ -497,6 +497,7 @@ int is_new_keypress(uint8_t keycode)
 int is_repeatable_key(uint8_t keycode)
 {
     switch (keycode) {
+        case HID_ENTER:
         case HID_ESCAPE:
         case HID_CAPSLOCK:
             return 0;
@@ -514,7 +515,7 @@ uint64_t monotonic_time_ms(void)
 
 /*
  * Send the full input buffer to the chat server.
- * Uses a loop to handle partial writes, then sends a trailing newline.
+ * Uses a loop to handle partial writes.
  * Returns 0 on success and -1 on error.
  */
 int send_input_buffer_to_server(void)
@@ -527,14 +528,6 @@ int send_input_buffer_to_server(void)
             return -1;
         }
         sent += (int)n;
-    }
-
-    /*
-     * Server messages are line-oriented; send newline so the message
-     * is treated as a complete chat line.
-     */
-    if (write(sockfd, "\n", 1) != 1) {
-        return -1;
     }
 
     return 0;
