@@ -5,6 +5,7 @@
  * Siddarth Raykar (sr4102)
  */
 #include "fbputchar.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -93,6 +94,8 @@ void clear_message_area(void);
 void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b);
 char keycode_to_ascii(uint8_t keycode, uint8_t modifiers);
 int is_special_key(uint8_t keycode);
+void handle_caps(uint8_t keycode);
+void is_special_key(uint8_t keycode);
 
 int main()
 {
@@ -171,13 +174,18 @@ int main()
       fbputs(keystate, 6, 0);
 
       /* TEST Convert keycode to ASCII and print */
-      char ascii = keycode_to_ascii(packet.keycode[0], packet.modifiers);
-      if (ascii != 0) {
-        printf("ASCII: '%c' (0x%02x)\n", ascii, (unsigned char)ascii);
-      }
-
-      if (packet.keycode[0] == 0x29) { /* ESC pressed? */
-	break;
+      handle_caps(packet.keycode[0]);
+      for (int i = 0; i < 6; i++){
+        uint8_t keycode = packet.keycode[i];
+        if (is_special_key(keycode)){
+          continue;
+        }
+        else {
+          char ascii = keycode_to_ascii(keycode, packet.modifiers);
+          if (ascii != 0) {
+            printf("ASCII: '%c' (0x%02x)\n", ascii, (unsigned char)ascii);
+          }
+        }
       }
     }
   }
@@ -291,7 +299,7 @@ char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
     if (keycode >= 128) {
         return 0;  
     }
-    
+
     /* either Shift key is pressed, then look up in appropriate table */
     int shift_pressed = 0;
     if ((modifiers & USB_LSHIFT) || (modifiers & USB_RSHIFT)) {
