@@ -212,11 +212,13 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
         current_msg_col++;
     }
 
-    /* After message, move to next line for the next message */
-    current_msg_col = 0;
-    current_msg_row++;
+    /* Only advance to next line if we printed something on current line */
+    if (current_msg_col > 0) {
+        current_msg_col = 0;
+        current_msg_row++;
 
-    if (current_msg_row > MSG_AREA_BOTTOM) {
-        clear_message_area();
+        if (current_msg_row > MSG_AREA_BOTTOM) {
+            clear_message_area();
+        }
     }
 }
