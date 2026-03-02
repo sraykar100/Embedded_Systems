@@ -90,6 +90,7 @@ void *network_thread_f(void *);
 void clear_message_area(void);
 void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b);
 char keycode_to_ascii(uint8_t keycode, uint8_t modifiers);
+int is_special_key(uint8_t keycode);
 
 int main()
 {
@@ -293,5 +294,19 @@ char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
         return keycode_to_ascii_shifted[keycode];
     } else {
         return keycode_to_ascii_unshifted[keycode];
+    }
+}
+
+int is_special_key(uint8_t keycode)
+{
+    switch (keycode) {
+        case HID_ENTER:
+        case HID_ESCAPE:
+        case HID_CAPSLOCK:
+        case HID_BACKSPACE:
+        case HID_TAB:
+            return 1;
+        default:
+            return 0;
     }
 }
