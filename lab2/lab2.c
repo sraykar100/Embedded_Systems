@@ -15,6 +15,8 @@
 #include <time.h>
 #include "usbkeyboard.h"
 #include <pthread.h>
+#include "keyboard.h"
+#include "display.h"
 
 /* Update SERVER_HOST to be the IP address of
  * the chat server you are connecting to
@@ -24,68 +26,6 @@
 #define SERVER_PORT 42000
 
 #define BUFFER_SIZE 128
-
-#define MSG_AREA_TOP 0       /* First row for messages */
-#define MSG_AREA_BOTTOM 20   /* Last row for messages */
-#define MSG_AREA_COLS 64     /* Characters per row */
-#define INPUT_AREA_TOP 22    /* First row for user input */
-#define DIVIDER_ROW 21       /* Row for the divider line */
-
-/* Track row and col for the next character to go on */
-int current_msg_row = MSG_AREA_TOP;
-int current_msg_col = 0;
-
-/* Lookup table: Unshifted characters */
-static const char keycode_to_ascii_unshifted[128] = {
-  0, 0, 0, 0, 'a', 'b', 'c', 'd',      // 0x00-0x07
-  'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',  // 0x08-0x0F
-  'm', 'n', 'o', 'p', 'q', 'r', 's', 't',  // 0x10-0x17
-  'u', 'v', 'w', 'x', 'y', 'z', '1', '2',  // 0x18-0x1F
-  '3', '4', '5', '6', '7', '8', '9', '0',  // 0x20-0x27
-  '\n', 0, 0, '\t', ' ', '-', '=', '[',    // 0x28-0x2F (Enter, Esc, Backspace, Tab, Space, -, =, [)
-  ']', '\\', 0, ';', '\'', '`', ',', '.',  // 0x30-0x37
-  '/', 0, 0, 0, 0, 0, 0, 0,                // 0x38-0x3F (/, CapsLock, F1-F5)
-  // rest are 0 
-};
-
-/* Lookup table: Shifted characters */
-static const char keycode_to_ascii_shifted[128] = {
-  0, 0, 0, 0, 'A', 'B', 'C', 'D',         // 0x00-0x07
-  'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', // 0x08-0x0F
-  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', // 0x10-0x17
-  'U', 'V', 'W', 'X', 'Y', 'Z', '!', '@', // 0x18-0x1F
-  '#', '$', '%', '^', '&', '*', '(', ')', // 0x20-0x27
-  '\n', 0, 0, '\t', ' ', '_', '+', '{',   // 0x28-0x2F
-  '}', '|', 0, ':', '"', '~', '<', '>',   // 0x30-0x37
-  '?', 0, 0, 0, 0, 0, 0, 0,               // 0x38-0x3F
-  // rest are 0
-};
-
-/* 
-HIDs for special keys 
-https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
-*/
-#define HID_ENTER     0x28
-#define HID_ESCAPE    0x29
-#define HID_CAPSLOCK  0x39
-#define HID_BACKSPACE 0x2A
-#define HID_TAB       0x2B
-#define HID_RIGHT     0x4F
-#define HID_LEFT      0x50
-
-static int is_caps_on = 0;
-
-/* Input buffer for user typing */
-#define INPUT_BUFFER_SIZE 256
-static char input_buffer[INPUT_BUFFER_SIZE];
-static int input_length = 0;
-static int cursor_position = 0;  /* Cursor position within input buffer */
-
-/* Previous keyboard packet for edge detection */
-static struct usb_keyboard_packet previous_packet = {0};
-static uint8_t repeat_keycode = 0;
-static uint8_t repeat_modifiers = 0;
-static uint64_t next_repeat_ms = 0;
 
 #define KEY_REPEAT_INITIAL_DELAY_MS 500
 #define KEY_REPEAT_INTERVAL_MS 80
@@ -108,24 +48,16 @@ uint8_t endpoint_address;
 pthread_t network_thread;
 void *network_thread_f(void *);
 
-/* Function prototypes */
-void clear_message_area(void);
-void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b);
-char keycode_to_ascii(uint8_t keycode, uint8_t modifiers);
-int is_special_key(uint8_t keycode);
-void handle_caps(uint8_t keycode);
-void handle_keypress(uint8_t keycode, uint8_t modifiers);
-void input_buf_add_char(char c);
-void input_buf_delete_char(void);
-void input_buf_clear(void);
-void input_buf_debug_print(void);
-void cursor_move_left(void);
-void cursor_move_right(void);
-int is_new_keypress(uint8_t keycode);
-int is_repeatable_key(uint8_t keycode);
-uint64_t monotonic_time_ms(void);
-int send_input_buffer_to_server(void);
-void display_user_input(void);
+static uint8_t repeat_keycode = 0;
+static uint8_t repeat_modifiers = 0;
+static uint64_t next_repeat_ms = 0;
+
+uint64_t monotonic_time_ms(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ((uint64_t)ts.tv_sec * 1000ULL) + ((uint64_t)ts.tv_nsec / 1000000ULL);
+}
 
 int main()
 {
@@ -226,7 +158,7 @@ int main()
       }
 
       /* Save current packet as previous for next iteration */
-      previous_packet = packet;
+      keyboard_save_packet(&packet);
     } else if (transfer_rc != LIBUSB_ERROR_TIMEOUT) {
       fprintf(stderr, "Keyboard read error: %d\n", transfer_rc);
     }
@@ -266,337 +198,4 @@ void *network_thread_f(void *ignored)
   }
 
   return NULL;
-}
-
-/*
-When messages fill up the display area, clear the message area (just rows 0-20) and reset cursor position to the top.
-*/
-void clear_message_area(void)
-{
-    int row, col;
-    
-    for (row = MSG_AREA_TOP; row <= MSG_AREA_BOTTOM; row++) {
-        for (col = 0; col < MSG_AREA_COLS; col++) {
-            fbputchar(' ', row, col);
-        }
-    }
-    
-    /* Reset position to top-left of message area */
-    current_msg_row = MSG_AREA_TOP;
-    current_msg_col = 0;
-}
-
-
-/*
- * Display a message in the message area with the given color.
- * Handles wrapping and overflow
- */
-void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b)
-{
-    const char *p = msg;
-    char c;
-    
-    while ((c = *p++) != '\0') {
-        /* Handle newline: move to start of next row */
-        if (c == '\n') {
-            current_msg_col = 0;
-            current_msg_row++;
-
-            /* Check if we've gone past the message area */
-            if (current_msg_row > MSG_AREA_BOTTOM) {
-                clear_message_area();
-            }
-            continue;
-        }
-
-        /* Check if we need to wrap to next line */
-        if (current_msg_col >= MSG_AREA_COLS) {
-            current_msg_col = 0;
-            current_msg_row++;
-
-            /* Check if we've gone past the message area */
-            if (current_msg_row > MSG_AREA_BOTTOM) {
-                clear_message_area();
-            }
-        }
-
-        /* Display the character */
-        fbputchar(c, current_msg_row, current_msg_col);
-        current_msg_col++;
-    }
-
-    /* Only advance to next line if we printed something on current line */
-    if (current_msg_col > 0) {
-        current_msg_col = 0;
-        current_msg_row++;
-
-        if (current_msg_row > MSG_AREA_BOTTOM) {
-            clear_message_area();
-        }
-    }
-}
-
-void handle_caps(uint8_t keycode){
-  if (keycode == HID_CAPSLOCK){
-      is_caps_on = !is_caps_on;
-    }
-}
-
-char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
-{
-    /* no key pressed */
-    if (keycode == 0) {
-        return 0;
-    }
-    
-    /* keycode is out of range */
-    if (keycode >= 128) {
-        return 0;  
-    }
-
-    /* either Shift key is pressed, then look up in appropriate table */
-    int shift_pressed = 0;
-    if ((modifiers & USB_LSHIFT) || (modifiers & USB_RSHIFT)) {
-        shift_pressed = 1;
-    }
-    int layer_toggle = 0; 
-    if (keycode >= 0x04 && keycode <= 0x1d){ // if letter, toggle caps.
-      layer_toggle = shift_pressed ^ is_caps_on;
-    }
-    else{
-      layer_toggle = shift_pressed;
-    }
-
-    if (layer_toggle) {
-        return keycode_to_ascii_shifted[keycode];
-    } else {
-        return keycode_to_ascii_unshifted[keycode];
-    }
-}
-
-int is_special_key(uint8_t keycode)
-{
-    switch (keycode) {
-        case HID_ENTER:
-        case HID_ESCAPE:
-        case HID_CAPSLOCK:
-        case HID_BACKSPACE:
-        case HID_TAB:
-            return 1;
-        default:
-            return 0;
-    }
-}
-
-/* Insert char at cursor */
-void input_buf_add_char(char c)
-{
-    if (input_length < INPUT_BUFFER_SIZE - 1) {
-        /* Shift right to make room */
-        for (int i = input_length; i > cursor_position; i--) {
-            input_buffer[i] = input_buffer[i - 1];
-        }
-        input_buffer[cursor_position] = c;
-        input_length++;
-        cursor_position++;
-        input_buffer[input_length] = '\0';
-        input_buf_debug_print();
-        display_user_input();
-    }
-}
-
-/* Backspace: delete char before cursor */
-void input_buf_delete_char(void)
-{
-    if (cursor_position > 0) {
-        /* Shift left to fill gap */
-        for (int i = cursor_position - 1; i < input_length - 1; i++) {
-            input_buffer[i] = input_buffer[i + 1];
-        }
-        input_length--;
-        cursor_position--;
-        input_buffer[input_length] = '\0';
-        input_buf_debug_print();
-        display_user_input();
-    }
-}
-
-/* Clear the input buffer */
-void input_buf_clear(void)
-{
-    input_length = 0;
-    cursor_position = 0;
-    input_buffer[0] = '\0';
-    input_buf_debug_print();
-    display_user_input();
-}
-
-void input_buf_debug_print(void)
-{
-    printf("Input[%d] cursor@%d: \"%s\"\n", input_length, cursor_position, input_buffer);
-}
-
-void cursor_move_left(void)
-{
-    if (cursor_position > 0) {
-        cursor_position--;
-        display_user_input();
-    }
-}
-
-void cursor_move_right(void)
-{
-    if (cursor_position < input_length) {
-        cursor_position++;
-        display_user_input();
-    }
-}
-
-void handle_keypress(uint8_t keycode, uint8_t modifiers)
-{
-    /* Handle Caps Lock toggle */
-    if (keycode == HID_CAPSLOCK) {
-        handle_caps(keycode);
-        return;
-    }
-
-    /* Handle Backspace - delete last character */
-    if (keycode == HID_BACKSPACE) {
-        input_buf_delete_char();
-        return;
-    }
-
-    /* Handle Tab - add 4 spaces */
-    if (keycode == HID_TAB) {
-        for (int i = 0; i < 4; i++) {
-            input_buf_add_char(' ');
-        }
-        return;
-    }
-
-    /*
-     * Handle Enter as "send message":
-     * 1) transmit current input buffer to server
-     * 2) clear local input only if send succeeds
-     */
-    if (keycode == HID_ENTER) {
-        if (input_length > 0) {
-            if (send_input_buffer_to_server() == 0) {
-                input_buf_clear();
-            } else {
-                fprintf(stderr, "Failed to send message; buffer kept for retry.\n");
-            }
-        }
-        return;
-    }
-
-    /* Handle Escape: do nothing */
-    if (keycode == HID_ESCAPE) {
-        return;
-    }
-
-    /* Arrow keys move cursor */
-    if (keycode == HID_LEFT) {
-        cursor_move_left();
-        return;
-    }
-    if (keycode == HID_RIGHT) {
-        cursor_move_right();
-        return;
-    }
-
-    /* Convert to ASCII and add to buffer */
-    char ascii = keycode_to_ascii(keycode, modifiers);
-    if (ascii != 0 && ascii != '\n' && ascii != '\t') {
-        input_buf_add_char(ascii);
-    }
-}
-
-/*
- * Essentially detect the rising edge of a keypress by comparing the current packet to the previous packet.
- */
-int is_new_keypress(uint8_t keycode)
-{
-    if (keycode == 0) { // no key pressed / release 
-        return 0;
-    }
-    
-    /* Check if this keycode was in any slot of the previous packet */
-    for (int i = 0; i < 6; i++) {
-        if (previous_packet.keycode[i] == keycode) {
-            return 0;  
-        }
-    }
-    
-    // New keypress 
-    return 1;  
-}
-
-int is_repeatable_key(uint8_t keycode)
-{
-    switch (keycode) {
-        case HID_ENTER:
-        case HID_ESCAPE:
-        case HID_CAPSLOCK:
-            return 0;
-        default:
-            return 1;
-    }
-}
-
-uint64_t monotonic_time_ms(void)
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ((uint64_t)ts.tv_sec * 1000ULL) + ((uint64_t)ts.tv_nsec / 1000000ULL);
-}
-
-/*
- * Send the full input buffer to the chat server.
- * Uses a loop to handle partial writes.
- * Returns 0 on success and -1 on error.
- */
-int send_input_buffer_to_server(void)
-{
-    int sent = 0;
-
-    while (sent < input_length) {
-        ssize_t n = write(sockfd, input_buffer + sent, input_length - sent);
-        if (n <= 0) {
-            return -1;
-        }
-        sent += (int)n;
-    }
-
-    return 0;
-}
-
-void display_user_input(void)
-{
-  int row = INPUT_AREA_TOP + 1;
-  
-  /* Clear row */
-  for (int c = 0; c < MSG_AREA_COLS; c++) {
-      fbputchar(' ', row, c);
-  }
-  
-  /* Keep cursor visible by sliding window */
-  int visible_width = MSG_AREA_COLS - 1;
-  int start = 0;
-  if (cursor_position > visible_width) {
-      start = cursor_position - visible_width;
-  }
-  
-  /* Draw text */
-  int col = 0;
-  for (int i = start; i < input_length && col < visible_width; i++) {
-      fbputchar(input_buffer[i], row, col);
-      col++;
-  }
-  
-  /* Draw cursor */
-  int cursor_display_col = cursor_position - start;
-  if (cursor_display_col >= 0 && cursor_display_col < MSG_AREA_COLS) {
-      fbputchar('|', row, cursor_display_col);
-  }
 }
