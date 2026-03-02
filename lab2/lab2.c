@@ -72,6 +72,11 @@ https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 
 static int is_caps_on = 0;
 
+/* Input buffer for user typing */
+#define INPUT_BUFFER_SIZE 128
+static char input_buffer[INPUT_BUFFER_SIZE];
+static int input_length = 0;
+
 /*
  * References:
  *
@@ -95,7 +100,11 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
 char keycode_to_ascii(uint8_t keycode, uint8_t modifiers);
 int is_special_key(uint8_t keycode);
 void handle_caps(uint8_t keycode);
-void is_special_key(uint8_t keycode);
+void handle_keypress(uint8_t keycode, uint8_t modifiers);
+void input_buf_add_char(char c);
+void input_buf_delete_char(void);
+void input_buf_clear(void);
+void input_buf_debug_print(void);
 
 int main()
 {
@@ -173,18 +182,14 @@ int main()
       printf("%s\n", keystate);
       fbputs(keystate, 6, 0);
 
-      /* TEST Convert keycode to ASCII and print */
-      handle_caps(packet.keycode[0]);
-      for (int i = 0; i < 6; i++){
+      /* Process each keycode slot */
+      for (int i = 0; i < 6; i++) {
         uint8_t keycode = packet.keycode[i];
-        if (is_special_key(keycode)){
-          continue;
+        if (keycode != 0) {
+          handle_keypress(keycode, packet.modifiers);
         }
-        else {
-          char ascii = keycode_to_ascii(keycode, packet.modifiers);
-          if (ascii != 0) {
-            printf("ASCII: '%c' (0x%02x)\n", ascii, (unsigned char)ascii);
-          }
+        if (packet.keycode[0] == HID_ESCAPE) {
+          break; // quit client if ESC
         }
       }
     }
@@ -305,8 +310,8 @@ char keycode_to_ascii(uint8_t keycode, uint8_t modifiers)
     if ((modifiers & USB_LSHIFT) || (modifiers & USB_RSHIFT)) {
         shift_pressed = 1;
     }
-    int layer_toggle = 0;
-    if (keycode >= 0x04 && keycode <= 0x1d){
+    int layer_toggle = 0; 
+    if (keycode >= 0x04 && keycode <= 0x1d){ // if letter, toggle caps.
       layer_toggle = shift_pressed ^ is_caps_on;
     }
     else{
@@ -331,5 +336,79 @@ int is_special_key(uint8_t keycode)
             return 1;
         default:
             return 0;
+    }
+}
+
+/* Add a character to the input buffer */
+void input_buf_add_char(char c)
+{
+    if (input_length < INPUT_BUFFER_SIZE - 1) {
+        input_buffer[input_length++] = c;
+        input_buffer[input_length] = '\0';
+        input_buf_debug_print();
+    }
+}
+
+/* Delete the last character from the input buffer (backspace) */
+void input_buf_delete_char(void)
+{
+    if (input_length > 0) {
+        input_length--;
+        input_buffer[input_length] = '\0';
+        input_buf_debug_print();
+    }
+}
+
+/* Clear the input buffer */
+void input_buf_clear(void)
+{
+    input_length = 0;
+    input_buffer[0] = '\0';
+    input_buf_debug_print();
+}
+
+void input_buf_debug_print(void)
+{
+    printf("Input[%d]: \"%s\"\n", input_length, input_buffer);
+}
+
+void handle_keypress(uint8_t keycode, uint8_t modifiers)
+{
+    /* Handle Caps Lock toggle */
+    if (keycode == HID_CAPSLOCK) {
+        handle_caps(keycode);
+        return;
+    }
+
+    /* Handle Backspace - delete last character */
+    if (keycode == HID_BACKSPACE) {
+        input_buf_delete_char();
+        return;
+    }
+
+    /* Handle Tab - add 4 spaces */
+    if (keycode == HID_TAB) {
+        for (int i = 0; i < 4; i++) {
+            input_buf_add_char(' ');
+        }
+        return;
+    }
+
+    /* Handle Enter - for now just print, later will send to server */
+    if (keycode == HID_ENTER) {
+        printf("ENTER pressed. Buffer contents: \"%s\"\n", input_buffer);
+        input_buf_clear();
+        return;
+    }
+
+    /* Handle Escape */
+    if (keycode == HID_ESCAPE) {
+        return;
+    }
+
+    /* Convert to ASCII and add to buffer */
+    char ascii = keycode_to_ascii(keycode, modifiers);
+    if (ascii != 0 && ascii != '\n' && ascii != '\t') {
+        input_buf_add_char(ascii);
     }
 }
