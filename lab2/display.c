@@ -26,7 +26,8 @@ void clear_message_area(void)
 
 /*
  * Display a message in the message area with the given color.
- * Handles wrapping and overflow
+ * Handles wrapping and overflow.
+ * If displaying the message would overflow, clear and redisplay from the start.
  */
 void display_message(const char *msg, unsigned char r, unsigned char g, unsigned char b)
 {
@@ -42,6 +43,7 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
             /* Check if we've gone past the message area */
             if (current_msg_row > MSG_AREA_BOTTOM) {
                 clear_message_area();
+                p = msg;  /* Restart displaying from beginning of message */
             }
             continue;
         }
@@ -54,6 +56,8 @@ void display_message(const char *msg, unsigned char r, unsigned char g, unsigned
             /* Check if we've gone past the message area */
             if (current_msg_row > MSG_AREA_BOTTOM) {
                 clear_message_area();
+                p = msg;  /* Restart displaying from beginning of message */
+                continue;
             }
         }
 
