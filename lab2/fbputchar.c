@@ -26,6 +26,12 @@
 #define FONT_HEIGHT 16
 #define BITS_PER_PIXEL 32
 
+/*
+fb_finfo.smem_len: total size of framebuffer memory in bytes
+fb_finfo.line_length: bytes per row 
+fb_vinfo.xres, fb_vinfo.yres: screen resolution
+fb_vinfo.xoffset, fb_vinfo.yoffset: where visible area starts
+*/
 struct fb_var_screeninfo fb_vinfo;
 struct fb_fix_screeninfo fb_finfo;
 unsigned char *framebuffer;
@@ -48,11 +54,59 @@ int fbopen()
 
   if (fb_vinfo.bits_per_pixel != 32) return FBOPEN_BPP; /* Unexpected */
 
+  /* Note to self: we use mmap to map the framebuffer to the address space of this process. */
   framebuffer = mmap(0, fb_finfo.smem_len, PROT_READ | PROT_WRITE,
 		     MAP_SHARED, fd, 0);
   if (framebuffer == (unsigned char *)-1) return FBOPEN_MMAP;
 
   return 0;
+}
+
+/*
+ * Clear the framebuffer by setting all pixels to black through iteration. Not putting a char, so can't just use fbputchar.
+ * Essentially, given the row and col of the char, the formula to find its address in the framebuffer is: 
+ * address = framebuffer_base 
+        + (y + yoffset) * line_length 
+        + (x + xoffset) * bytes_per_pixel
+ */
+void fbclear(void)
+{
+    int x, y;
+    unsigned char *pixel;
+    
+    for (y = 0; y < fb_vinfo.yres; y++) {
+        // Calculate address of the start of the current row.
+        unsigned char *row = framebuffer 
+            + (y + fb_vinfo.yoffset) * fb_finfo.line_length
+            + fb_vinfo.xoffset * (BITS_PER_PIXEL / 8);
+        
+        pixel = row;
+        for (x = 0; x < fb_vinfo.xres; x++) {
+            pixel[0] = 0;  // Red
+            pixel[1] = 0;  // Green
+            pixel[2] = 0;  // Blue
+            pixel[3] = 0;  // Unused
+            pixel += 4;    // Move to next pixel. Mirror how its done in fbputchar
+        }
+    }
+}
+
+void fb_draw_line_divider(char c, int row)
+{
+    int col;
+    for (col = 0; col < 64; col++) {
+        fbputchar(c, row, col);
+    }
+}
+
+// Clear screen and initialize the split-screen layout
+void fb_init_screen(void)
+{
+    // Clear the screen
+    fbclear();
+    
+    // Draw divider line at row 21 (just above input area at rows 22-23)
+    fb_draw_line_divider('-', 21);
 }
 
 /*
