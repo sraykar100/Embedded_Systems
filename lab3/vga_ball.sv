@@ -7,7 +7,7 @@
 
 module vga_ball(input logic        clk,
 	        input logic 	   reset,
-		input logic [7:0]  writedata,
+		input logic [31:0]  writedata,
 		input logic 	   write,
 		input 		   chipselect,
 		input logic [2:0]  address,
@@ -20,32 +20,70 @@ module vga_ball(input logic        clk,
    logic [10:0]	   hcount;
    logic [9:0]     vcount;
 
+   logic [15:0]    ball_x, ball_y;
    logic [7:0] 	   background_r, background_g, background_b;
+
+   logic [5:0]     radius;
+
+   assign radius = 6'd16;
 	
    vga_counters counters(.clk50(clk), .*);
 
-   always_ff @(posedge clk)
+   logic [9:0] pixel_x, pixel_y; 
+
+   logic signed [10:0] x_diff, y_diff;
+   logic [21:0] dist2;
+   logic in_ball;
+
+  assign pixel_x = hcount[10:1];
+  assign pixel_y = vcount;
+  
+  assign x_diff = $signed({1'b0, pixel_x}) - $signed(ball_x[10:0]);
+  assign y_diff = $signed({1'b0, pixel_y}) - $signed(ball_y[10:0]);
+
+  
+  assign dist2 = x_diff * x_diff + y_diff * y_diff;
+  assign in_ball = dist2 <= (radius * radius);
+
+   always_ff @(posedge clk) begin
      if (reset) begin
-	background_r <= 8'h0;
-	background_g <= 8'h0;
-	background_b <= 8'h80;
-     end else if (chipselect && write)
+      background_r <= 8'h80;
+      background_g <= 8'h0;
+      background_b <= 8'h80;
+
+      ball_x <= 16'd320;
+      ball_y <= 16'd240;
+     end else if (chipselect && write) begin
        case (address)
-	 3'h0 : background_r <= writedata;
-	 3'h1 : background_g <= writedata;
-	 3'h2 : background_b <= writedata;
-       endcase
+       3'h0 : begin
+        background_r <= writedata[23:16];
+        background_g <= writedata[15:8];
+        background_b <= writedata[7:0];
+       end
+      3'h1 : begin
+        if (writedata[15:0] <= 16'd639)
+          ball_x <= writedata[15:0];
+      end
+      3'h2 : begin
+        if (writedata[15:0] <= 16'd479)
+          ball_y <= writedata[15:0];
+      end
+    endcase
+  end
+end
 
    always_comb begin
       {VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
-      if (VGA_BLANK_n )
-	if (hcount[10:6] == 5'd3 &&
-	    vcount[9:5] == 5'd3)
-	  {VGA_R, VGA_G, VGA_B} = {8'hff, 8'hff, 8'hff};
-	else
-	  {VGA_R, VGA_G, VGA_B} =
-             {background_r, background_g, background_b};
-   end
+      if (VGA_BLANK_n ) begin
+        if (in_ball) begin
+          {VGA_R, VGA_G, VGA_B} = {8'hFF, 8'h0, 8'h0};
+        end else begin
+          {VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
+        end
+      end
+    end
+
+      
 	       
 endmodule
 
