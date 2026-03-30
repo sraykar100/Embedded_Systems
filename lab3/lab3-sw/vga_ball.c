@@ -35,10 +35,10 @@
 
 #define DRIVER_NAME "vga_ball"
 
-/* Device registers */
-#define BG_RED(x) (x)
-#define BG_GREEN(x) ((x)+1)
-#define BG_BLUE(x) ((x)+2)
+/* Device registers. writedata is now 32 bits, so we need to offset by 4 bytes. */
+#define BG_COLOR(x)  ((x))        
+#define BALL_X(x)    ((x)+4)      
+#define BALL_Y(x)    ((x)+8)
 
 /*
  * Information about our device
@@ -46,19 +46,31 @@
 struct vga_ball_dev {
 	struct resource res; /* Resource: our registers */
 	void __iomem *virtbase; /* Where registers can be accessed in memory */
-        vga_ball_color_t background;
+	vga_ball_color_t background;
+	unsigned short ball_x, ball_y;
 } dev;
 
 /*
- * Write segments of a single digit
- * Assumes digit is in range and the device information has been set up
+ * Background color is now squished into a single 32-bit word. Must bit shift individual components to create full 32-bit word.
  */
 static void write_background(vga_ball_color_t *background)
 {
-	iowrite8(background->red, BG_RED(dev.virtbase) );
-	iowrite8(background->green, BG_GREEN(dev.virtbase) );
-	iowrite8(background->blue, BG_BLUE(dev.virtbase) );
-	dev.background = *background;
+  u32 color = ((u32)background->red   << 16) |
+              ((u32)background->green << 8)  |
+              ((u32)background->blue);
+  iowrite32(color, BG_COLOR(dev.virtbase));
+  dev.background = *background;
+}
+
+/*
+ * Write the ball position to the device registers.
+ */
+static void write_ball_pos(unsigned short x, unsigned short y)
+{
+  iowrite32(x, BALL_X(dev.virtbase));
+  iowrite32(y, BALL_Y(dev.virtbase));
+  dev.ball_x = x;
+  dev.ball_y = y;
 }
 
 /*
@@ -84,6 +96,14 @@ static long vga_ball_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 				 sizeof(vga_ball_arg_t)))
 			return -EACCES;
 		break;
+
+	case VGA_BALL_SET_POS:
+		if (copy_from_user(&vla, (vga_ball_arg_t *) arg,
+				   sizeof(vga_ball_arg_t)))
+			return -EACCES;
+		write_ball_pos(vla.ball_x, vla.ball_y);
+		break;
+
 
 	default:
 		return -EINVAL;
@@ -139,8 +159,8 @@ static int __init vga_ball_probe(struct platform_device *pdev)
 	}
         
 	/* Set an initial color */
-        write_background(&beige);
-
+    write_background(&beige);
+	write_ball_pos(320, 240);
 	return 0;
 
 out_release_mem_region:

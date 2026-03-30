@@ -3,6 +3,17 @@
  *
  * Stephen A. Edwards
  * Columbia University
+ *
+ * Register map (32-bit writedata, word-addressed):
+ *
+ *   Word 0 (byte offset 0x00): Background color
+ *     [23:16] = Red   [15:8] = Green   [7:0] = Blue
+ *
+ *   Word 1 (byte offset 0x04): Ball X position
+ *     [15:0]  = X coordinate (0–639)
+ *
+ *   Word 2 (byte offset 0x08): Ball Y position
+ *     [15:0]  = Y coordinate (0–479)
  */
 
 module vga_ball(input logic        clk,
@@ -23,68 +34,47 @@ module vga_ball(input logic        clk,
    logic [15:0]    ball_x, ball_y;
    logic [7:0] 	   background_r, background_g, background_b;
 
-   logic [5:0]     radius;
+   localparam BALL_RADIUS = 6'd16;
 
-   assign radius = 6'd16;
-	
    vga_counters counters(.clk50(clk), .*);
 
-   logic [9:0] pixel_x, pixel_y; 
-
+   logic [9:0] pixel_x, pixel_y;
    logic signed [10:0] x_diff, y_diff;
    logic [21:0] dist2;
    logic in_ball;
 
-  assign pixel_x = hcount[10:1];
-  assign pixel_y = vcount;
-  
-  assign x_diff = $signed({1'b0, pixel_x}) - $signed(ball_x[10:0]);
-  assign y_diff = $signed({1'b0, pixel_y}) - $signed(ball_y[10:0]);
+   assign pixel_x = hcount[10:1];
+   assign pixel_y = vcount;
 
-  
-  assign dist2 = x_diff * x_diff + y_diff * y_diff;
-  assign in_ball = dist2 <= (radius * radius);
+   assign x_diff = $signed({1'b0, pixel_x}) - $signed(ball_x[10:0]);
+   assign y_diff = $signed({1'b0, pixel_y}) - $signed(ball_y[10:0]);
+   assign dist2  = x_diff * x_diff + y_diff * y_diff;
+   assign in_ball = dist2 <= (BALL_RADIUS * BALL_RADIUS);
 
-   always_ff @(posedge clk) begin
+   always_ff @(posedge clk)
      if (reset) begin
-      background_r <= 8'h80;
-      background_g <= 8'h0;
-      background_b <= 8'h80;
-
-      ball_x <= 16'd320;
-      ball_y <= 16'd240;
-     end else if (chipselect && write) begin
+        background_r <= 8'h80;
+        background_g <= 8'h0;
+        background_b <= 8'h80;
+        ball_x <= 16'd320;
+        ball_y <= 16'd240;
+     end else if (chipselect && write)
        case (address)
-       3'h0 : begin
-        background_r <= writedata[23:16];
-        background_g <= writedata[15:8];
-        background_b <= writedata[7:0];
-       end
-      3'h1 : begin
-        if (writedata[15:0] <= 16'd639)
-          ball_x <= writedata[15:0];
-      end
-      3'h2 : begin
-        if (writedata[15:0] <= 16'd479)
-          ball_y <= writedata[15:0];
-      end
-    endcase
-  end
-end
+         3'h0 : {background_r, background_g, background_b} <= writedata[23:0];
+         3'h1 : if (writedata[15:0] <= 16'd639) ball_x <= writedata[15:0];
+         3'h2 : if (writedata[15:0] <= 16'd479) ball_y <= writedata[15:0];
+       endcase
 
    always_comb begin
       {VGA_R, VGA_G, VGA_B} = {8'h0, 8'h0, 8'h0};
-      if (VGA_BLANK_n ) begin
-        if (in_ball) begin
-          {VGA_R, VGA_G, VGA_B} = {8'hFF, 8'h0, 8'h0};
-        end else begin
-          {VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
-        end
+      if (VGA_BLANK_n) begin
+         if (in_ball)
+            {VGA_R, VGA_G, VGA_B} = {8'hff, 8'h0, 8'h0};
+         else
+            {VGA_R, VGA_G, VGA_B} = {background_r, background_g, background_b};
       end
-    end
+   end
 
-      
-	       
 endmodule
 
 module vga_counters(
