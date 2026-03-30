@@ -1,5 +1,5 @@
 Assembler report for soc_system
-Sat Mar 28 17:47:49 2026
+Mon Mar 30 16:13:30 2026
 Quartus Prime Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
 
 
@@ -38,7 +38,7 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Sat Mar 28 17:47:49 2026 ;
+; Assembler Status      ; Successful - Mon Mar 30 16:13:30 2026 ;
 ; Revision Name         ; soc_system                            ;
 ; Top-level Entity Name ; soc_system_top                        ;
 ; Family                ; Cyclone V                             ;
@@ -120,13 +120,15 @@ Info: Running Quartus Prime Assembler
     Info: Intel and sold by Intel or its authorized distributors.  Please
     Info: refer to the applicable agreement for further details, at
     Info: https://fpgasoftware.intel.com/eula.
-    Info: Processing started: Sat Mar 28 17:47:39 2026
+    Info: Processing started: Mon Mar 30 16:13:21 2026
 Info: Command: quartus_asm soc_system
 Info (115030): Assembler is generating device programming files
-Info (11878): Hard Processor Subsystem configuration has not changed and a Preloader software update is not required
-Info: Quartus Prime Assembler was successful. 0 errors, 0 warnings
-    Info: Peak virtual memory: 812 megabytes
-    Info: Processing ended: Sat Mar 28 17:47:49 2026
+Warning (11713): The configuration of the Hard Processor Subsystem (HPS) within this design has changed.
+The Preloader software that initializes the HPS requires an update.
+Using hps_isw_handoff/soc_system_hps_0/, run the Preloader Support Package Generator to update your Preloader software
+Info: Quartus Prime Assembler was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 810 megabytes
+    Info: Processing ended: Mon Mar 30 16:13:31 2026
     Info: Elapsed time: 00:00:10
     Info: Total CPU time (on all processors): 00:00:05
 

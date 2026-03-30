@@ -1,5 +1,5 @@
 Analysis & Synthesis report for soc_system
-Sat Mar 28 17:46:41 2026
+Mon Mar 30 16:12:14 2026
 Quartus Prime Version 21.1.0 Build 842 10/21/2021 SJ Lite Edition
 
 
@@ -219,7 +219,7 @@ https://fpgasoftware.intel.com/eula.
 +-------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                  ;
 +---------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status     ; Successful - Sat Mar 28 17:46:41 2026       ;
+; Analysis & Synthesis Status     ; Successful - Mon Mar 30 16:12:14 2026       ;
 ; Quartus Prime Version           ; 21.1.0 Build 842 10/21/2021 SJ Lite Edition ;
 ; Revision Name                   ; soc_system                                  ;
 ; Top-level Entity Name           ; soc_system_top                              ;
@@ -341,8 +341,7 @@ https://fpgasoftware.intel.com/eula.
 ; Usage by Processor         ; % Time Used ;
 ;     Processor 1            ; 100.0%      ;
 ;     Processor 2            ;   0.0%      ;
-;     Processor 3            ;   0.0%      ;
-;     Processor 4            ;   0.0%      ;
+;     Processors 3-4         ;   0.0%      ;
 +----------------------------+-------------+
 
 
@@ -4288,7 +4287,7 @@ Info: Running Quartus Prime Analysis & Synthesis
     Info: Intel and sold by Intel or its authorized distributors.  Please
     Info: refer to the applicable agreement for further details, at
     Info: https://fpgasoftware.intel.com/eula.
-    Info: Processing started: Sat Mar 28 17:44:04 2026
+    Info: Processing started: Mon Mar 30 16:09:37 2026
 Info: Command: quartus_map soc_system
 Info (20032): Parallel compilation is enabled and will use up to 4 processors
 Info (12021): Found 1 design units, including 1 entities, in source file soc_system_top.sv
@@ -4608,8 +4607,8 @@ Info (21057): Implemented 1485 device resources after synthesis - the final reso
     Info (21061): Implemented 473 logic cells
     Info (21066): Implemented 1 delay-locked loops
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 116 warnings
-    Info: Peak virtual memory: 982 megabytes
-    Info: Processing ended: Sat Mar 28 17:46:41 2026
+    Info: Peak virtual memory: 984 megabytes
+    Info: Processing ended: Mon Mar 30 16:12:14 2026
     Info: Elapsed time: 00:02:37
     Info: Total CPU time (on all processors): 00:02:36
 
