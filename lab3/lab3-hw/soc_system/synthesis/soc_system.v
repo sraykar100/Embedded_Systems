@@ -120,7 +120,7 @@ module soc_system (
 	wire         mm_interconnect_0_vga_ball_0_avalon_slave_0_chipselect; // mm_interconnect_0:vga_ball_0_avalon_slave_0_chipselect -> vga_ball_0:chipselect
 	wire   [2:0] mm_interconnect_0_vga_ball_0_avalon_slave_0_address;    // mm_interconnect_0:vga_ball_0_avalon_slave_0_address -> vga_ball_0:address
 	wire         mm_interconnect_0_vga_ball_0_avalon_slave_0_write;      // mm_interconnect_0:vga_ball_0_avalon_slave_0_write -> vga_ball_0:write
-	wire   [7:0] mm_interconnect_0_vga_ball_0_avalon_slave_0_writedata;  // mm_interconnect_0:vga_ball_0_avalon_slave_0_writedata -> vga_ball_0:writedata
+	wire  [31:0] mm_interconnect_0_vga_ball_0_avalon_slave_0_writedata;  // mm_interconnect_0:vga_ball_0_avalon_slave_0_writedata -> vga_ball_0:writedata
 	wire  [31:0] hps_0_f2h_irq0_irq;                                     // irq_mapper:sender_irq -> hps_0:f2h_irq_p0
 	wire  [31:0] hps_0_f2h_irq1_irq;                                     // irq_mapper_001:sender_irq -> hps_0:f2h_irq_p1
 	wire         rst_controller_reset_out_reset;                         // rst_controller:reset_out -> [mm_interconnect_0:vga_ball_0_reset_reset_bridge_in_reset_reset, vga_ball_0:reset]

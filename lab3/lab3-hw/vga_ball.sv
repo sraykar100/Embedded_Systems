@@ -7,7 +7,7 @@
 
 module vga_ball(input logic        clk,
 	        input logic 	   reset,
-		input logic [7:0]  writedata,
+		input logic [31:0]  writedata,
 		input logic 	   write,
 		input 		   chipselect,
 		input logic [2:0]  address,
