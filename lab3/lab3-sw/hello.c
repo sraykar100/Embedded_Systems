@@ -51,9 +51,9 @@ int main()
   }
 
   set_background_color(&bg);
-  unsigned short x = 320, y = 240;
+  int x = 320, y = 240;
   int dx = 2, dy = 2;
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 10000; i++) {
     set_ball_pos(x, y);
     x += dx;
     y += dy;
