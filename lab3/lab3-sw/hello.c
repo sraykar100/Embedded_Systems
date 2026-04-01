@@ -51,7 +51,16 @@ int main()
   }
 
   set_background_color(&bg);
-  set_ball_pos(320, 240);
+  unsigned short x = 320, y = 240;
+  int dx = 2, dy = 2;
+  for (int i = 0; i < 100; i++) {
+    set_ball_pos(x, y);
+    x += dx;
+    y += dy;
+    if (x <= 0 || x >= 640) dx = -dx;
+    if (y <= 0 || y >= 480) dy = -dy;
+    usleep(16000); // sleep for 16 ms (about 60 frames per second)
+  }
 
   printf("Ball placed at (320, 240)\n");
   printf("VGA BALL Userspace program terminating\n");
